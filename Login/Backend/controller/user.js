@@ -158,7 +158,7 @@ async function HandleChangePassword(req, res) {
 
 async function HandleResendOtp(req, res) {
   try {
-    console.log("Req Body :",req.body)
+    
     const { email } = req.body;
     if (!email) {
       console.log("Email not found")
@@ -167,17 +167,16 @@ async function HandleResendOtp(req, res) {
       });
     }
     const pendingrequest = await PENDINGUSER.findOne({ email });
-    console.log("PENDING USER :",pendingrequest)
+    
     if (!pendingrequest) {
       return res.status(400).json({
         Status: "Session expired",
       });
     }
     const existOtp = await OTP.findOne({ email });
-    console.log("EXISIT OTP :",existOtp)
+    
     if (existOtp) {
       const timediff = (Date.now() - existOtp.createdAt.getTime()) / 1000;
-      console.log("TIME DIFF :",timediff)
       if (timediff < 60) {
         return res.status(429).json({
           Status: `Please wait ${
@@ -187,9 +186,9 @@ async function HandleResendOtp(req, res) {
       }
     }
     const otp = GenerateOtp();
-    console.log("Generated OTP :",otp)
+    
     const otpHash = await bcrypt.hash(otp.toString(), 10);
-    console.log("HASHED OTP :",otpHash)
+    
 
     await OTP.deleteMany({ email });
     await OTP.create({
