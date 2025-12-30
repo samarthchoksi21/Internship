@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP | ShopX</title>
+  <link rel="stylesheet" href="otp.css"/>
+</head>
+<body>
+
+  <div class="shop-auth-wrapper">
+    <div class="shop-auth-card otp-card">
+
+      <!-- LEFT PANEL -->
+      <div class="shop-brand">
+        <h1>ShopX</h1>
+        <p>Enter the OTP sent to your email</p>
+      </div>
+      <!-- OTP FORM -->
+      <form class="shop-form" id="otpForm">
+        <h2>Verify OTP</h2>
+
+        <div class="otp-box">
+          <input type="text" maxlength="1" class="otp-input" />
+          <input type="text" maxlength="1" class="otp-input" />
+          <input type="text" maxlength="1" class="otp-input" />
+          <input type="text" maxlength="1" class="otp-input" />
+          <input type="text" maxlength="1" class="otp-input" />
+          <input type="text" maxlength="1" class="otp-input" />
+        </div>
+
+        <small class="error" id="otpError"></small>
+
+        <button type="submit" class="shop-btn">Verify</button>
+
+        <p class="redirect">
+          Didn’t receive OTP?
+          <a href="#" id="resendBtn">Resend</a>
+          <span id="timer"></span>
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <script src="otp.js"></script>
+</body>
+</html>

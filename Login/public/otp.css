@@ -1,0 +1,38 @@
+/* Reuse your existing styles */
+@import url("style.css");
+
+/* OTP card tweaks */
+.otp-card {
+  height: 520px;
+}
+
+/* OTP INPUT BOXES */
+.otp-box {
+  display: flex;
+  justify-content: space-between;
+  margin: 25px 0;
+}
+
+.otp-input {
+  width: 55px;
+  height: 60px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.otp-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  outline: none;
+}
+
+@media (max-width: 500px) {
+  .otp-input {
+    width: 45px;
+    height: 55px;
+  }
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup | Store</title>
+  <link rel="stylesheet" href="signup.css" />
+</head>
+<body>
+
+  <div class="shop-auth-wrapper">
+    <div class="shop-auth-card">
+
+      <!-- LEFT BRAND PANEL -->
+      <div class="shop-brand">
+        <h1>ShopX</h1>
+        <p>Premium products. Fast delivery. Trusted by thousands.</p>
+      </div>
+
+      <!-- RIGHT FORM PANEL -->
+      <form class="login-form shop-form" id="signupForm">
+        <h2>Create Account</h2>
+
+        <div class="content">
+
+          <div class="field">
+            
+            <input type="text" id="username" placeholder="username" required />
+            
+            <small class="error" id="usernameError"></small>
+          </div>
+
+          <div class="field">
+            <input type="email" id="email" placeholder="email" required />
+            
+            <small class="error" id="emailError"></small>
+          </div>
+
+          <div class="field">
+            
+            <input type="password" id="password" placeholder="password" required />
+
+            <small class="error" id="passwordError"></small>
+          </div>
+
+          <button type="submit" class="shop-btn">SEND OTP</button>
+          <label class="remember">
+            <input type="checkbox" checked />
+            Remember me
+          </label>
+
+          <p class="redirect">
+            Already have an account?
+            <a href="login.html">Login</a>
+          </p>
+
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <script src="signup.js"></script>
+</body>
+</html>
