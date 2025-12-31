@@ -7,9 +7,9 @@ const timerText = document.getElementById("timer");
 let cooldown = 60;
 let timerInterval = null;
 
-/* ======================
-   OTP INPUT BEHAVIOR
-====================== */
+
+
+
 inputs.forEach((input, index) => {
   input.addEventListener("input", () => {
     if (input.value && index < inputs.length - 1) {
@@ -24,9 +24,7 @@ inputs.forEach((input, index) => {
   });
 });
 
-/* ======================
-   VERIFY OTP SUBMIT
-====================== */
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   errorBox.textContent = "";
@@ -68,9 +66,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ======================
-   RESEND OTP LOGIC
-====================== */
+
 resendBtn.addEventListener("click", async (e) => {
   e.preventDefault();
   errorBox.textContent = "";
@@ -103,9 +99,7 @@ resendBtn.addEventListener("click", async (e) => {
   }
 });
 
-/* ======================
-   COOLDOWN TIMER
-====================== */
+
 function startCooldown() {
   resendBtn.style.pointerEvents = "none";
   resendBtn.style.opacity = "0.5";
