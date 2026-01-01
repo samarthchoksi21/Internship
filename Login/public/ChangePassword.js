@@ -4,24 +4,19 @@ document
     e.preventDefault();
 
     const emailInput = document.getElementById("email");
-    const oldPassInput = document.getElementById("oldPassword");
-    const newPassInput = document.getElementById("newPassword");
     const errorMsg = document.getElementById("errorMsg");
     const successMsg = document.getElementById("successMsg");
 
-    if (!emailInput || !oldPassInput || !newPassInput) {
+    if (!emailInput) {
       console.error("Input elements missing in HTML");
       return;
     }
 
     const email = emailInput.value.trim();
-    const oldPassword = oldPassInput.value.trim();
-    const newPassword = newPassInput.value.trim();
-
     errorMsg.textContent = "";
     successMsg.textContent = "";
 
-    if (!email || !oldPassword || !newPassword) {
+    if (!email) {
       errorMsg.textContent = "All fields are required";
       return;
     }
@@ -33,9 +28,7 @@ document
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
-          oldPassword,
-          newPassword,
+          email
         }),
       });
 
@@ -48,12 +41,9 @@ document
 
       successMsg.textContent =
         data.Message || "Password changed successfully";
-
-      oldPassInput.value = "";
-      newPassInput.value = "";
       setTimeout(() => {
         window.location.href =
-          "http://127.0.0.1:5500/Login/public/WebPage.html";
+          "http://127.0.0.1:5500/Login/public/ChangePasswordOtp.html";
       }, 1500);
     } catch (error) {
       errorMsg.textContent = "Server not reachable. Try again later.";

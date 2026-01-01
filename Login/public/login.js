@@ -2,7 +2,6 @@ document
   .getElementById("loginform")
   .addEventListener("submit", async function (e) {
     e.preventDefault();
-
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
 
@@ -44,7 +43,6 @@ document
           data.Message || data.error || "Invalid login credentials"
         );
       }
-
       window.location.href =
         "http://127.0.0.1:5500/Login/public/WebPage.html";
 

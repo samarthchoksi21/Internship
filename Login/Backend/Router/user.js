@@ -6,6 +6,4 @@ router.post('/login',HandleLoginPage)
 router.post('/change',HandleChangePassword)
 router.post('/otp',VerifyOtp)
 router.post('/re-send',HandleResendOtp)
-
-
 module.exports = router

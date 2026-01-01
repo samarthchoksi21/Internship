@@ -30,7 +30,7 @@ async function HandleSignupPage(req, res) {
         username,
         email,
         passwordHash,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       { upsert: true }
     );
@@ -40,21 +40,19 @@ async function HandleSignupPage(req, res) {
       { email },
       {
         otpHash,
-        expiresAt: otpExpiry
+        expiresAt: otpExpiry,
       },
       { upsert: true }
     );
-
-    await sendOtp(email, otp);
-
+    const text = `Your OTP for signup is ${otp}. Please dont share this OTP with anyone.If you didnt sent this otp please ignore this message.`
+    await sendOtp(email, otp,text);
     return res.status(201).json({
-      message: "OTP sent to email"
+      message: "OTP sent to email",
     });
-
   } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({
-      message: "Signup failed"
+      message: "Signup failed",
     });
   }
 }
@@ -121,42 +119,29 @@ async function HandleLoginPage(req, res) {
 }
 async function HandleChangePassword(req, res) {
   try {
-    const { email, oldPassword, newPassword } = req.body;
+    const { email } = req.body;
 
-    if (!email || !oldPassword || !newPassword) {
+    if (!email) {
       return res.status(400).json({ Message: "All fields required" });
     }
-
     const user = await USER.findOne({ email });
     if (!user) {
       return res.status(404).json({ Message: "User not found" });
     }
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ Message: "Old password incorrect" });
-    }
-
-    const samePassword = await bcrypt.compare(newPassword, user.password);
-    if (samePassword) {
-      return res.status(400).json({
-        Message: "New password must be different from old password",
-      });
-    }
-    if (!/[A-Z]/.test(newPassword)) {
-      return res
-        .status(400)
-        .json({ Message: "Password should contain at least 1 capital letter" });
-    }
-    if (newPassword.length < 7) {
-      return res
-        .status(400)
-        .json({ Message: "Password should at least have 6 charachters" });
-    }
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-    await USER.updateOne({ email }, { $set: { password: hashedNewPassword } });
-
-    return res.status(200).json({ Message: "Password changed successfully" });
+    const otp = GenerateOtp();
+    const otpHash = await bcrypt.hash(otp.toString(), 10);
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+    await OTP.findOneAndUpdate(
+      { email },
+      {
+        otpHash,
+        expiresAt: otpExpiry,
+      },
+      { upsert: true }
+    );
+    const text = `Your OTP for changing password is ${otp}. Dont share this OTP with anyone. if you didnt send any OTP please ignore this message`
+    await sendOtp(email,otp,text)
+    return res.status(200).json({ Message: "OTP sent to your email" });
   } catch (error) {
     return res.status(500).json({ Message: "Server error" });
   }
@@ -164,23 +149,22 @@ async function HandleChangePassword(req, res) {
 
 async function HandleResendOtp(req, res) {
   try {
-    
     const { email } = req.body;
     if (!email) {
-      console.log("Email not found")
+      console.log("Email not found");
       return res.status(400).json({
         Status: "Email not found",
       });
     }
     const pendingrequest = await PENDINGUSER.findOne({ email });
-    
+
     if (!pendingrequest) {
       return res.status(400).json({
         Status: "Session expired",
       });
     }
     const existOtp = await OTP.findOne({ email });
-    
+
     if (existOtp) {
       const timediff = (Date.now() - existOtp.createdAt.getTime()) / 1000;
       if (timediff < 60) {
@@ -192,9 +176,8 @@ async function HandleResendOtp(req, res) {
       }
     }
     const otp = GenerateOtp();
-    
+
     const otpHash = await bcrypt.hash(otp.toString(), 10);
-    
 
     await OTP.deleteMany({ email });
     await OTP.create({
@@ -202,16 +185,17 @@ async function HandleResendOtp(req, res) {
       otpHash,
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
-    await sendOtp(email, otp);
+    const text = `Your OTP for after resending is ${otp}.`
+    await sendOtp(email, otp,text);
     return res.status(200).json({
       Status: "OTP sent successfully",
     });
   } catch (error) {
-    console.log("Resend OTP error :",error)
+    console.log("Resend OTP error :", error);
     return res.status(500).json({
-      Status : "SERVER ERROR",
-      err : error.message
-    })
+      Status: "SERVER ERROR",
+      err: error.message,
+    });
   }
 }
 
@@ -220,5 +204,5 @@ module.exports = {
   HandleLoginPage,
   HandleChangePassword,
   VerifyOtp,
-  HandleResendOtp
+  HandleResendOtp,
 };
