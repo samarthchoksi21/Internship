@@ -29,9 +29,13 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   errorBox.textContent = "";
 
+  const btn = document.getElementById("verifyBtn");
+  const btnText = btn.querySelector(".btn-text");
+  const loader = btn.querySelector(".btn-loader");
   const otp = Array.from(inputs)
     .map((i) => i.value)
     .join("");
+
   const email = localStorage.getItem("pendingEmail");
 
   if (!email) {
@@ -44,6 +48,11 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
+  /* 🔥 ENTER LOADING STATE */
+  btn.disabled = true;
+  btn.classList.add("loading");
+  loader.classList.remove("hidden");
+
   try {
     const res = await fetch("http://localhost:3000/otp", {
       method: "POST",
@@ -54,17 +63,24 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      errorBox.textContent = data.message || "Invalid OTP";
-      return;
+      throw new Error(data.message || "Invalid OTP");
     }
 
     localStorage.removeItem("pendingEmail");
-    alert("OTP verified successfully!");
-    window.location.href = "http://127.0.0.1:5500/Login/public/login.html";
+
+    window.location.href =
+      "http://127.0.0.1:5500/Login/public/login.html";
+
   } catch (err) {
-    errorBox.textContent = "Server error. Try again.";
+    errorBox.textContent = err.message || "Server error. Try again.";
+
+    /* 🔥 RESET STATE */
+    btn.disabled = false;
+    btn.classList.remove("loading");
+    loader.classList.add("hidden");
   }
 });
+
 
 
 resendBtn.addEventListener("click", async (e) => {

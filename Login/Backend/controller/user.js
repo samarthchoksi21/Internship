@@ -11,6 +11,7 @@ function GenerateOtp() {
 async function HandleSignupPage(req, res) {
   try {
     const { username, email, password } = req.body;
+
     if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -18,41 +19,46 @@ async function HandleSignupPage(req, res) {
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
     }
-    const pending = await PENDINGUSER.findOne({ email });
-    if (pending) {
-      return res.status(400).json({
-        message: "OTP already sent. Please verify email",
-      });
-    }
+
     const passwordHash = await bcrypt.hash(password, 10);
-    await PENDINGUSER.create({
-      username,
-      email,
-      passwordHash,
-    });
     const otp = GenerateOtp();
     const otpHash = await bcrypt.hash(otp.toString(), 10);
-    await OTP.deleteMany({ email });
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+    await PENDINGUSER.findOneAndUpdate(
+      { email },
+      {
+        username,
+        email,
+        passwordHash,
+        updatedAt: new Date()
+      },
+      { upsert: true }
+    );
 
-    await OTP.create({
-      email,
-      otpHash,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min
-    });
+    // Replace OTP safely
+    await OTP.findOneAndUpdate(
+      { email },
+      {
+        otpHash,
+        expiresAt: otpExpiry
+      },
+      { upsert: true }
+    );
 
     await sendOtp(email, otp);
 
     return res.status(201).json({
-      message: "Signup successful. OTP sent to your email",
+      message: "OTP sent to email"
     });
+
   } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({
-      message: "Signup failed",
-      error: error.message,
+      message: "Signup failed"
     });
   }
 }
+
 async function VerifyOtp(req, res) {
   const { email, otp } = req.body;
   if (!email || !otp) {

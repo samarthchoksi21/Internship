@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Verify OTP | ShopX</title>
-  <link rel="stylesheet" href="otp.css"/>
+  <link rel="stylesheet" href="otp.css" />
 </head>
+
 <body>
 
   <div class="shop-auth-wrapper">
@@ -31,7 +33,16 @@
 
         <small class="error" id="otpError"></small>
 
-        <button type="submit" class="shop-btn">Verify</button>
+        <button type="submit" class="shop-btn" id="verifyBtn">
+          <span class="btn-text">Verify</span>
+
+          <span class="btn-loader hidden">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+
 
         <p class="redirect">
           Didn’t receive OTP?
@@ -46,4 +57,5 @@
 
   <script src="otp.js"></script>
 </body>
+
 </html>

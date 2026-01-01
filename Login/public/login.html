@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login | Store</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <!-- NEW wrapper (safe, backend unaffected) -->
   <div class="shop-auth-wrapper">
@@ -35,7 +37,16 @@
             <small class="error" id="passwordError"></small>
           </div>
 
-          <button type="submit" class="shop-btn">Login</button>
+          <button type="submit" class="shop-btn" id="loginBtn">
+            <span class="btn-text">Login</span>
+
+            <span class="btn-loader hidden">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+
 
           <label class="remember">
             <input type="checkbox" checked />
@@ -59,4 +70,5 @@
 
   <script src="login.js"></script>
 </body>
+
 </html>
