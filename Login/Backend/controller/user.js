@@ -95,7 +95,39 @@ async function VerifyOtp(req, res) {
     status: "VALID OTP",
   });
 }
-
+async function GetOtpForChangingPassword(req, res) {
+  
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({
+      Status: "Please Enter OTP",
+    });
+  }
+  
+  const OtpRecord = await OTP.findOne({ email });
+  if (!OtpRecord) {
+    return res.status(400).json({
+      status: "OTP not found",
+    });
+  }
+  
+  if (OtpRecord.expiresAt < Date.now()) {
+    return res.status(400).json({
+      Status: "OTP expired",
+    });
+  }
+  
+  const IsOtpValid = await bcrypt.compare(otp.toString(), OtpRecord.otpHash);
+  if (!IsOtpValid) {
+    return res.status(400).json({
+      Status: "Invalid Otp",
+    });
+  }
+  
+  return res.status(200).json({
+    status: "VALID OTP",
+  });
+}
 async function HandleLoginPage(req, res) {
   try {
     const { email, password } = req.body;
@@ -118,6 +150,48 @@ async function HandleLoginPage(req, res) {
   }
 }
 async function HandleChangePassword(req, res) {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ Message: "All fields required" });
+    }
+
+    const user = await USER.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ Message: "User not found" });
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ Message: "Old password incorrect" });
+    }
+
+    const samePassword = await bcrypt.compare(newPassword, user.password);
+    if (samePassword) {
+      return res.status(400).json({
+        Message: "New password must be different from old password",
+      });
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      return res
+        .status(400)
+        .json({ Message: "Password should contain at least 1 capital letter" });
+    }
+    if (newPassword.length < 7) {
+      return res
+        .status(400)
+        .json({ Message: "Password should at least have 6 charachters" });
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await USER.updateOne({ email }, { $set: { password: hashedNewPassword } });
+
+    return res.status(200).json({ Message: "Password changed successfully" });
+  } catch (error) {
+    return res.status(500).json({ Message: "Server error" });
+  }
+}
+async function HandleForgotPasswordEmailSendOtp(req, res) {
   try {
     const { email } = req.body;
 
@@ -205,4 +279,6 @@ module.exports = {
   HandleChangePassword,
   VerifyOtp,
   HandleResendOtp,
+  GetOtpForChangingPassword,
+  HandleForgotPasswordEmailSendOtp
 };
