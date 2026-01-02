@@ -34,7 +34,7 @@ form.addEventListener("submit", async (e) => {
 
   if (!email) {
     errorBox.textContent = "Session expired. Please signup again.";
-    return;
+    return; 
   }
 
   if (otp.length !== 6) {
@@ -48,22 +48,21 @@ form.addEventListener("submit", async (e) => {
   loader.classList.remove("hidden");
 
   try {
-    const res = await fetch("http://localhost:3000/otp", {
+    const res = await fetch("http://localhost:3000/changepasswordotp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
     });
-
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.message || "Invalid OTP");
+      throw new Error(data.Status || "Invalid OTP from frontend");
     }
 
     localStorage.removeItem("pendingEmail");
 
     window.location.href =
-      "http://127.0.0.1:5500/Login/public/login.html";
+      "http://127.0.0.1:5500/Login/public/ChangePassword.html";
 
   } catch (err) {
     errorBox.textContent = err.message || "Server error. Try again.";
@@ -86,7 +85,6 @@ resendBtn.addEventListener("click", async (e) => {
     errorBox.textContent = "Session expired. Please signup again.";
     return;
   }
-
   try {
     const res = await fetch("http://localhost:3000/re-send", {
       method: "POST",
