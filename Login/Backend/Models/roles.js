@@ -4,10 +4,10 @@ const Roleschema = new mongoose.Schema({
         type : String,
         required : true
     },
-    permissions : {
+    permissions : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : "PERMISSION"
-    }
+    }]
 })
 const ROLE = mongoose.model("ROLE",Roleschema)
 module.exports = {ROLE}

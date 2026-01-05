@@ -5,3 +5,6 @@ const PermissionSchema = new mongoose.Schema({
         required : true,
     }
 })
+const PERMISSION = mongoose.model("PERMISSION",PermissionSchema)
+
+module.exports = {PERMISSION}
