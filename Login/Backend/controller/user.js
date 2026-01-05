@@ -1,8 +1,9 @@
 const { USER } = require("../Models/user");
 const { OTP } = require("../Models/otp");
 const { PENDINGUSER } = require("../Models/pendinguser");
+const {ROLE} = require('../Models/roles')
 const { sendOtp } = require("../utils/mailer");
-
+const {GenerateTokens,VerifyUser} = require('../service/auth')
 const bcrypt = require("bcrypt");
 function GenerateOtp() {
   return Math.floor(100000 + Math.random() * 900000);
@@ -35,7 +36,6 @@ async function HandleSignupPage(req, res) {
       { upsert: true }
     );
 
-    // Replace OTP safely
     await OTP.findOneAndUpdate(
       { email },
       {
@@ -85,10 +85,15 @@ async function VerifyOtp(req, res) {
   if (!PendingUser) {
     return res.status(400).json({ Status: "Session expired" });
   }
+  const userRole = await ROLE.findOne({name : "USER"})
+  if(!userRole){
+    return res.status(400).json({message : "Seed role first"})
+  }
   await USER.create({
     username: PendingUser.username,
     email: PendingUser.email,
     password: PendingUser.passwordHash,
+    roleRef : userRole._id
   });
   await PENDINGUSER.deleteOne({ email });
   return res.status(200).json({
@@ -142,7 +147,13 @@ async function HandleLoginPage(req, res) {
     if (!isMatch) {
       return res.status(400).json({ Message: "Invalid password" });
     }
-    return res.status(200).json({ Message: "Login successfully" });
+    const tokens = GenerateTokens(user)
+    res.cookie("token", tokens,{
+      httpOnly: true,
+      sameSite: "strict",
+       maxAge: 24 * 60 * 60 * 1000
+    })
+    return res.status(200).json({message : "Login successfully"})
   } catch (error) {
     if (error) {
       return res.status(500).json({ Message: "Error while login" });
