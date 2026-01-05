@@ -5,22 +5,20 @@ const userschema = new mongoose.Schema({
     },
     email : {
         type : String,
-        require : true,
+        required : true,
+        unique : true
     },
     password : {
         type : String,
-        require : true
+        required : true
     },
-    isVerified :{
-        type : Boolean,
-        default : false
+    roleRef : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "ROLE",
+        required : true
     }
-    
 },{timestamps : true})
-
-
 const USER = mongoose.model("USER",userschema)
-
 module.exports={
     USER
 }
