@@ -7,6 +7,7 @@ app.use(cors({
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
+const {VerifyUser} = require('./service/auth')
 const AdminRoute = require('./Router/admin')
 const UserRoute = require('./Router/user')
 const {MongoConnection} = require('./connection')
@@ -16,7 +17,7 @@ app.use(cookieParser())
 require('./Models/permission')
 require('./Models/roles')
 require('./Models/user')
-app.use('/admin',AdminRoute)
+app.use('/admin',VerifyUser,AdminRoute)
 app.use('/',UserRoute)
 MongoConnection()
 app.get('/',(req,res)=>{
