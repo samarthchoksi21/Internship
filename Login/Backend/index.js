@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path')
 const cookieParser = require('cookie-parser')
 const app = express()
 const cors = require("cors");
@@ -14,6 +15,7 @@ const {MongoConnection} = require('./connection')
 app.use(express.urlencoded({extended : true}))
 app.use(express.json())
 app.use(cookieParser())
+app.use('/uploads',express.static(path.join(__dirname,"uploads")))
 require('./Models/permission')
 require('./Models/roles')
 require('./Models/user')
@@ -26,6 +28,10 @@ app.get('/',(req,res)=>{
     res.send("Hello from server")
     
 })
+app.get("/test-static", (req, res) => {
+  res.sendFile(path.join(__dirname, "uploads", "products", "dumbell.jpg"));
+});
+
 app.listen(3000,()=>{
     console.log("SERVER STARTED..!!")
 })
