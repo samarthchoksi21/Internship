@@ -8,7 +8,7 @@ const {
   CreateCategory,
   GetAllCategories,
   CreateProduct,
-  GetallProducts
+  GetAllProducts
 } = require("../controller/admin");
 
 const { checkAuth } = require("../middlewares/auth");
@@ -19,5 +19,5 @@ Router.post("/changerole/:id", checkAuth("user:change_role"), ChangeRole);
 Router.post("/createCategory", checkAuth("category:create"), CreateCategory);
 Router.get("/getAllcategories", checkAuth("category:view"), GetAllCategories);
 Router.post('/product',checkAuth("product:create"),CreateProduct)
-Router.get('/product',checkAuth("product:view"),GetallProducts)
+Router.get('/product',checkAuth("product:view"),GetAllProducts)
 module.exports = Router;

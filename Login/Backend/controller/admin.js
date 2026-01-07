@@ -102,84 +102,187 @@ async function ChangeRole(req, res) {
     return res.status(500).json({ message: "INTERNAL SERVER ERROR" });
   }
 }
-async function CreateCategory(req,res){
-  const {name , description} = req.body
-  if(!name || !description){
-    return res.status(400).json({message : "Please enter all details"})
-  }
-  const exist = await CATEGORY.findOne({
-    name : new RegExp(`^${name}$`,"i")
-  })
-  if(exist){
-    return res.status(400).json({message : "The category already exist"})
-  }
-  await CATEGORY.create({
-    name,
-    description
-  })
-  return res.status(200).json({message : "Category created successfully"})
-}
-async function GetAllCategories(req,res){
+async function CreateCategory(req, res) {
   try {
-    const categories = await CATEGORY.find({})
-    if(!categories){
-      return res.status(400).json({message : "No categories found"})
+    const { name, description, parentId } = req.body;
+
+    if (!name) {
+      return res.status(400).json({
+        message: "Category name is required",
+      });
+    } 
+    const slug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-");
+
+ 
+    const existing = await CATEGORY.findOne({ slug });
+    if (existing) {
+      return res.status(400).json({
+        message: "Category already exists",
+      });
     }
-    return res.status(200).json({
-      Counts : categories.length,
-      categories
-    })
-    
+    let parentRef = null;
+    if (parentId) {
+      const parentCategory = await CATEGORY.findById(parentId);
+      if (!parentCategory || !parentCategory.isActive) {
+        return res.status(400).json({
+          message: "Parent category does not exist or is inactive",
+        });
+      }
+      parentRef = parentId;
+    }
+    const category = await CATEGORY.create({
+      name,
+      slug,
+      description,
+      parentRef,
+    });
+    return res.status(201).json({
+      message: "Category created successfully",
+      category,
+    });
   } catch (error) {
-    return res.status(500).json({message : "SERVER ERROR"})
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 }
-async function CreateProduct(req,res){
-  const {
-    name,
-    description,
-    categoryId,
-    variants
-  } = req.body
-  if(!name || !categoryId || !Array.isArray(variants) || variants.length === 0){
-    return res.status(400).json({message : "name , categoryId , at least 1 variant is required"})
+async function GetAllCategories(req, res) {
+  try {
+    const categories = await CATEGORY.find({ isActive: true })
+      .select("name slug parentRef description")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      count: categories.length,
+      categories,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
-  const category = await CATEGORY.findById(categoryId)
-  if(!category || !category.isActive){
-    return res.status(400).json({message : "Category doesnt exist or it is inactive"})
-  }
-  for(const v of variants){
-    if(
-      !v.label || typeof v.price !== "number" || typeof v.stock !== "number"
-    ){
-      return res.status(400).json({message : "Each variant must have label and valid stock and price"})
+}
+
+async function CreateProduct(req, res) {
+  try {
+    const { name, description, categoryId, variants, images } = req.body;
+
+   
+    if (!name || !categoryId || !Array.isArray(variants) || variants.length === 0) {
+      return res.status(400).json({
+        message: "name, categoryId and at least one variant are required",
+      });
     }
+
+
+    const category = await CATEGORY.findById(categoryId);
+    if (!category || !category.isActive) {
+      return res.status(400).json({
+        message: "Category does not exist or is inactive",
+      });
+    }
+
+    const skuSet = new Set();
+    let minPrice = Infinity;
+    let maxPrice = 0;
+
+    for (const v of variants) {
+      if (
+        !v.sku ||
+        !v.label ||
+        typeof v.price !== "number" ||
+        typeof v.stock !== "number"
+      ) {
+        return res.status(400).json({
+          message: "Each variant must have sku, label, valid price and stock",
+        });
+      }
+
+      if (skuSet.has(v.sku)) {
+        return res.status(400).json({
+          message: `Duplicate SKU found: ${v.sku}`,
+        });
+      }
+
+      skuSet.add(v.sku);
+
+      minPrice = Math.min(minPrice, v.price);
+      maxPrice = Math.max(maxPrice, v.price);
+    }
+
+   
+    const slug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-");
+
+    const existingProduct = await PRODUCT.findOne({ slug });
+    if (existingProduct) {
+      return res.status(400).json({
+        message: "Product with similar name already exists",
+      });
+    }
+    const product = await PRODUCT.create({
+      name : name,
+      slug : slug,
+      descrition : description,
+      images : images,
+      categoryRef : categoryId,
+      variants : variants,
+      minPrice : minPrice,
+      maxPrice : maxPrice,
+      createdBy : req.user_id
+    });
+
+    return res.status(201).json({
+      message: "Product created successfully",
+      product,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
-
-  const product = await PRODUCT.create({
-    name,
-    description,
-    categoryRef : categoryId,
-    variants,
-    createdBy : req.user._id
-  })
-  return res.status(200).json({
-    message : "Product created successfully here is your product",
-    product
-  })
-
 }
-async function GetallProducts(req,res){
-  const products = await PRODUCT.find({}).populate("categoryRef" , "name")
 
-  if(!products){
-    return res.status(400).json({message : "There are no products available"})
+async function GetAllProducts(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const [products, total] = await Promise.all([
+      PRODUCT.find({ isActive: true })
+        .populate("categoryRef", "name slug")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      PRODUCT.countDocuments({ isActive: true }),
+    ]);
+
+    return res.status(200).json({
+      message: "Products fetched successfully",
+      pagination: {
+        page,
+        limit,
+        totalProducts: total,
+        totalPages: Math.ceil(total / limit),
+      },
+      products,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
-  return res.status(200).json({
-    message : "Here are your products",
-    products
-  })
 }
+
 module.exports = {
   ViewAllUser,
   CreateUser,
@@ -188,5 +291,5 @@ module.exports = {
   CreateCategory,
   GetAllCategories,
   CreateProduct,
-  GetallProducts
+  GetAllProducts
 };

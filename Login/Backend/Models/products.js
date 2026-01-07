@@ -22,7 +22,11 @@ const VariantSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
     },
-
+    sku : {
+      type : String,
+      required : true,
+      trim : true
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -56,15 +60,34 @@ const ProductSchema = new mongoose.Schema(
         "Product must have at least one variant",
       ],
     },
-
-    isActive: {
-      type: Boolean,
-      default: true,
+    slug : {
+      type : String,
+      required : true,
+      unique : true,
+      index : true
     },
-
+    images : [
+      {
+        type : String
+      }
+    ],
+    minPrice : {
+      type : Number,
+      required : true,
+      min : 0
+    },
+    maxPrice : {
+      type : Number,
+      required : true,
+      min : 0
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "USER",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }
