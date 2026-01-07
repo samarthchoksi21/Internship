@@ -1,5 +1,7 @@
 const { USER } = require("../Models/user");
 const { ROLE } = require("../Models/roles");
+const {CATEGORY} = require('../Models/category')
+const {PRODUCT} = require('../Models/products')
 const bcrypt = require("bcrypt");
 async function ViewAllUser(req, res) {
   try {
@@ -19,7 +21,6 @@ async function ViewAllUser(req, res) {
     });
   }
 }
-
 async function CreateUser(req, res) {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -101,10 +102,91 @@ async function ChangeRole(req, res) {
     return res.status(500).json({ message: "INTERNAL SERVER ERROR" });
   }
 }
+async function CreateCategory(req,res){
+  const {name , description} = req.body
+  if(!name || !description){
+    return res.status(400).json({message : "Please enter all details"})
+  }
+  const exist = await CATEGORY.findOne({
+    name : new RegExp(`^${name}$`,"i")
+  })
+  if(exist){
+    return res.status(400).json({message : "The category already exist"})
+  }
+  await CATEGORY.create({
+    name,
+    description
+  })
+  return res.status(200).json({message : "Category created successfully"})
+}
+async function GetAllCategories(req,res){
+  try {
+    const categories = await CATEGORY.find({})
+    if(!categories){
+      return res.status(400).json({message : "No categories found"})
+    }
+    return res.status(200).json({
+      Counts : categories.length,
+      categories
+    })
+    
+  } catch (error) {
+    return res.status(500).json({message : "SERVER ERROR"})
+  }
+}
+async function CreateProduct(req,res){
+  const {
+    name,
+    description,
+    categoryId,
+    variants
+  } = req.body
+  if(!name || !categoryId || !Array.isArray(variants) || variants.length === 0){
+    return res.status(400).json({message : "name , categoryId , at least 1 variant is required"})
+  }
+  const category = await CATEGORY.findById(categoryId)
+  if(!category || !category.isActive){
+    return res.status(400).json({message : "Category doesnt exist or it is inactive"})
+  }
+  for(const v of variants){
+    if(
+      !v.label || typeof v.price !== "number" || typeof v.stock !== "number"
+    ){
+      return res.status(400).json({message : "Each variant must have label and valid stock and price"})
+    }
+  }
 
+  const product = await PRODUCT.create({
+    name,
+    description,
+    categoryRef : categoryId,
+    variants,
+    createdBy : req.user._id
+  })
+  return res.status(200).json({
+    message : "Product created successfully here is your product",
+    product
+  })
+
+}
+async function GetallProducts(req,res){
+  const products = await PRODUCT.find({}).populate("categoryRef" , "name")
+
+  if(!products){
+    return res.status(400).json({message : "There are no products available"})
+  }
+  return res.status(200).json({
+    message : "Here are your products",
+    products
+  })
+}
 module.exports = {
   ViewAllUser,
   CreateUser,
   DeleteUser,
   ChangeRole,
+  CreateCategory,
+  GetAllCategories,
+  CreateProduct,
+  GetallProducts
 };
