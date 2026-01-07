@@ -8,11 +8,13 @@ const {
   CreateCategory,
   GetAllCategories,
   CreateProduct,
-  GetAllProducts
+  GetAllProducts,
+  GetUserById
 } = require("../controller/admin");
 
 const { checkAuth } = require("../middlewares/auth");
 Router.get("/allusers", checkAuth("user:view"), ViewAllUser);
+Router.get('/user/:id',checkAuth("user:view"),GetUserById)
 Router.post("/createUser", checkAuth("user:create"), CreateUser);
 Router.delete("/user/:id", checkAuth("user:delete"), DeleteUser);
 Router.post("/changerole/:id", checkAuth("user:change_role"), ChangeRole);

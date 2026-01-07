@@ -21,6 +21,25 @@ async function ViewAllUser(req, res) {
     });
   }
 }
+async function GetUserById(req,res){
+  try {
+    const {id} = req.params
+    if(!id){
+      return res.status(400).json({message : "Please enter id"})
+    }
+    const user = await USER.findById(id).populate("roleRef")
+    if(!user){
+      return res.status(400).json({message : "User not found"})
+    }
+    return res.status(200).json({
+      message : "Here is user",
+      user
+    })
+    
+  } catch (error) {
+    return res.status(500).json({message : "Error while getting user"})
+  }
+}
 async function CreateUser(req, res) {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -154,7 +173,7 @@ async function GetAllCategories(req, res) {
   try {
     const categories = await CATEGORY.find({ isActive: true })
       .select("name slug parentRef description")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).populate("parentRef")
 
     return res.status(200).json({
       count: categories.length,
@@ -178,8 +197,6 @@ async function CreateProduct(req, res) {
         message: "name, categoryId and at least one variant are required",
       });
     }
-
-
     const category = await CATEGORY.findById(categoryId);
     if (!category || !category.isActive) {
       return res.status(400).json({
@@ -202,15 +219,12 @@ async function CreateProduct(req, res) {
           message: "Each variant must have sku, label, valid price and stock",
         });
       }
-
       if (skuSet.has(v.sku)) {
         return res.status(400).json({
           message: `Duplicate SKU found: ${v.sku}`,
         });
       }
-
       skuSet.add(v.sku);
-
       minPrice = Math.min(minPrice, v.price);
       maxPrice = Math.max(maxPrice, v.price);
     }
@@ -236,7 +250,7 @@ async function CreateProduct(req, res) {
       variants : variants,
       minPrice : minPrice,
       maxPrice : maxPrice,
-      createdBy : req.user_id
+      createdBy : req.user._id
     });
 
     return res.status(201).json({
@@ -285,6 +299,7 @@ async function GetAllProducts(req, res) {
 
 module.exports = {
   ViewAllUser,
+  GetUserById,
   CreateUser,
   DeleteUser,
   ChangeRole,

@@ -1,5 +1,6 @@
 function checkAuth(permission){
   return function(req,res,next){
+    
     if(!req.user || !req.user.roleRef){
       return res.status(400).json({message : "Access denied"})
     }
