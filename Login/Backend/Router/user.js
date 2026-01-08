@@ -7,7 +7,8 @@ const {
   VerifyOtp,
   HandleResendOtp,
   GetOtpForChangingPassword,
-  HandleForgotPasswordEmailSendOtp
+  HandleForgotPasswordEmailSendOtp,
+  GetAllProductsPublic
 } = require("../controller/user");
 router.post("/signup", HandleSignupPage);
 router.post("/login", HandleLoginPage);
@@ -16,4 +17,5 @@ router.post("/otp", VerifyOtp);
 router.post("/changepasswordotp", GetOtpForChangingPassword);
 router.post('/forgotpasswordemail',HandleForgotPasswordEmailSendOtp);
 router.post("/re-send", HandleResendOtp);
+router.get('/allproduct',GetAllProductsPublic)
 module.exports = router;

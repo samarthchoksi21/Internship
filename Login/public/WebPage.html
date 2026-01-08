@@ -1,30 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Successful</title>
-  <link rel="stylesheet" href="webpage.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRON-GEAR | Premium Gym Store</title>
+    <link rel="stylesheet" href="webpage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <div class="success-container">
- 
-    <div class="image-box">
-        <img src="correct.png" alt="Successful image">
+    <nav class="navbar">
+        <div class="logo">IRON<span>GEAR</span></div>
+        <div class="nav-right">
+            <div class="cart-trigger" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cart-count">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="search-area">
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="productSearch" placeholder="Search supplements, gear, dumbells..." onkeyup="searchProducts()">
+        </div>
+        <div class="category-pills" id="category-list">
+            <button class="cat-pill active" onclick="filterCategory('all')">All Gear</button>
+            <button class="cat-pill" onclick="filterCategory('PRTOEIN')">Proteins</button>
+            <button class="cat-pill" onclick="filterCategory('Dumbell')">Dumbells</button>
+            <button class="cat-pill" onclick="filterCategory('Accessories')">Accessories</button>
+            <button class="cat-pill" onclick="filterCategory('MACHINES')">Machines</button>
+        </div>
+    </section>
+
+    <main class="container">
+        <div id="product-grid" class="product-grid">
+            </div>
+    </main>
+
+    <div id="cart-popup" class="cart-popup-card">
+        <div class="popup-content">
+            <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="popup-info">
+                <p class="popup-status">Added to Bag</p>
+                <h4 id="pop-item-name">Product Name</h4>
+                <div class="pop-footer">
+                    <span id="pop-total">Total: ₹0</span>
+                    <button class="btn-pop-checkout" onclick="toggleCart()">View Bag</button>
+                </div>
+            </div>
+            <i class="fa-solid fa-xmark close-pop" onclick="hidePopup()"></i>
+        </div>
     </div>
 
-    <h1>Congratulations!</h1>
-    <p>You have successfully logged in.</p>
+    <div id="cart-drawer" class="cart-drawer">
+        <div class="cart-header">
+            <h3>Your Training Bag</h3>
+            <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="toggleCart()"></i>
+        </div>
+        <div id="cart-items" class="cart-items-list"></div>
+        <div class="cart-footer">
+            <div class="total-row">
+                <span>Total Amount:</span>
+                <span id="cart-total" style="font-weight: 800; color: var(--primary);">₹0</span>
+            </div>
+            <button class="btn-checkout">Proceed to Checkout</button>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="toggleCart()"></div>
 
-    <button <a href="http://127.0.0.1:5500/Login/public/signup.html"></a>Continue</button>
-  </div>
-
-  <script>
-    function goHome() {
-      window.location.href = "WebPage.html";
-    }
-  </script>
-
+    <script src="WebPage.js"></script>
 </body>
 </html>

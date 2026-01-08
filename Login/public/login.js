@@ -33,9 +33,9 @@ document
       const response = await fetch("http://localhost:3000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials : "include",
         body: JSON.stringify({ email, password })
       });
-
       const data = await response.json();
 
       if (!response.ok) {
@@ -44,7 +44,7 @@ document
         );
       }
       window.location.href =
-        "http://127.0.0.1:5500/Login/public/WebPage.html";
+        "http://localhost:5500/Login/public/WebPage.html";
 
     } catch (error) {
       passwordError.textContent = error.message;

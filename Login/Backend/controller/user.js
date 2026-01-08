@@ -2,6 +2,7 @@ const { USER } = require("../Models/user");
 const { OTP } = require("../Models/otp");
 const { PENDINGUSER } = require("../Models/pendinguser");
 const {ROLE} = require('../Models/roles')
+const {PRODUCT} = require('../Models/products')
 const { sendOtp } = require("../utils/mailer");
 const {GenerateTokens,VerifyUser} = require('../service/auth')
 const bcrypt = require("bcrypt");
@@ -283,6 +284,58 @@ async function HandleResendOtp(req, res) {
     });
   }
 }
+async function GetAllProductsPublic(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const filter = { isActive: true };
+
+    const [products, total] = await Promise.all([
+      PRODUCT.find(filter)
+        .populate("categoryRef", "name slug")
+        .select(
+          "name description images minPrice maxPrice categoryRef variants"
+        )
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      PRODUCT.countDocuments(filter),
+    ]);
+
+    // Remove sensitive variant fields
+    const sanitizedProducts = products.map(product => ({
+      ...product,
+      variants: product.variants
+        .filter(v => v.isActive)
+        .map(v => ({
+          label: v.label,
+          price: v.price,
+          imageUrl: v.imageUrl,
+          inStock: v.stock > 0, // boolean only
+        })),
+    }));
+
+    return res.status(200).json({
+      message: "Products fetched successfully",
+      pagination: {
+        page,
+        limit,
+        totalProducts: total,
+        totalPages: Math.ceil(total / limit),
+      },
+      products: sanitizedProducts,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
 
 module.exports = {
   HandleSignupPage,
@@ -291,5 +344,6 @@ module.exports = {
   VerifyOtp,
   HandleResendOtp,
   GetOtpForChangingPassword,
-  HandleForgotPasswordEmailSendOtp
+  HandleForgotPasswordEmailSendOtp,
+  GetAllProductsPublic
 };
