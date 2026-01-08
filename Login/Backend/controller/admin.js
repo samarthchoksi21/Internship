@@ -1,19 +1,20 @@
 const { USER } = require("../Models/user");
 const { ROLE } = require("../Models/roles");
-const {CATEGORY} = require('../Models/category')
-const {PRODUCT} = require('../Models/products')
+const { CATEGORY } = require("../Models/category");
+const { PRODUCT } = require("../Models/products");
+const mongoose = require('mongoose')
 const bcrypt = require("bcrypt");
 async function ViewAllUser(req, res) {
   try {
-    const users = await USER
-      .find({}, { password: 0, __v: 0 })
-      .populate("roleRef", "name"); 
+    const users = await USER.find({}, { password: 0, __v: 0 }).populate(
+      "roleRef",
+      "name"
+    );
 
     return res.status(200).json({
       count: users.length,
       users,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "INTERNAL SERVER ERROR",
@@ -21,23 +22,22 @@ async function ViewAllUser(req, res) {
     });
   }
 }
-async function GetUserById(req,res){
+async function GetUserById(req, res) {
   try {
-    const {id} = req.params
-    if(!id){
-      return res.status(400).json({message : "Please enter id"})
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "Please enter id" });
     }
-    const user = await USER.findById(id).populate("roleRef")
-    if(!user){
-      return res.status(400).json({message : "User not found"})
+    const user = await USER.findById(id).populate("roleRef");
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
     }
     return res.status(200).json({
-      message : "Here is user",
-      user
-    })
-    
+      message: "Here is user",
+      user,
+    });
   } catch (error) {
-    return res.status(500).json({message : "Error while getting user"})
+    return res.status(500).json({ message: "Error while getting user" });
   }
 }
 async function CreateUser(req, res) {
@@ -89,25 +89,23 @@ async function DeleteUser(req, res) {
 async function ChangeRole(req, res) {
   try {
     const { id } = req.params;
-    const {roleName} = req.body;
+    const { roleName } = req.body;
 
     if (req.user._id.equals(id)) {
       return res.status(400).json({
         message: "Admin cannot delete itself",
       });
     }
- 
 
     const role = await ROLE.findOne({ name: roleName });
     if (!role) {
       return res.status(400).json({ message: "Invalid Role" });
     }
-   
+
     const user = await USER.findById(id);
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
-
 
     user.roleRef = role._id;
     await user.save();
@@ -129,13 +127,12 @@ async function CreateCategory(req, res) {
       return res.status(400).json({
         message: "Category name is required",
       });
-    } 
+    }
     const slug = name
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, "-");
 
- 
     const existing = await CATEGORY.findOne({ slug });
     if (existing) {
       return res.status(400).json({
@@ -173,7 +170,8 @@ async function GetAllCategories(req, res) {
   try {
     const categories = await CATEGORY.find({ isActive: true })
       .select("name slug parentRef description")
-      .sort({ createdAt: -1 }).populate("parentRef")
+      .sort({ createdAt: -1 })
+      .populate("parentRef");
 
     return res.status(200).json({
       count: categories.length,
@@ -191,8 +189,12 @@ async function CreateProduct(req, res) {
   try {
     const { name, description, categoryId, variants, images } = req.body;
 
-   
-    if (!name || !categoryId || !Array.isArray(variants) || variants.length === 0) {
+    if (
+      !name ||
+      !categoryId ||
+      !Array.isArray(variants) ||
+      variants.length === 0
+    ) {
       return res.status(400).json({
         message: "name, categoryId and at least one variant are required",
       });
@@ -229,7 +231,6 @@ async function CreateProduct(req, res) {
       maxPrice = Math.max(maxPrice, v.price);
     }
 
-   
     const slug = name
       .toLowerCase()
       .trim()
@@ -242,15 +243,15 @@ async function CreateProduct(req, res) {
       });
     }
     const product = await PRODUCT.create({
-      name : name,
-      slug : slug,
-      descrition : description,
-      images : images,
-      categoryRef : categoryId,
-      variants : variants,
-      minPrice : minPrice,
-      maxPrice : maxPrice,
-      createdBy : req.user._id
+      name: name,
+      slug: slug,
+      description: description,
+      images: images,
+      categoryRef: categoryId,
+      variants: variants,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      createdBy: req.user._id,
     });
 
     return res.status(201).json({
@@ -296,7 +297,128 @@ async function GetAllProducts(req, res) {
     });
   }
 }
+async function EditProduct(req, res) {
+  try {
+    const  productId  = req.params.productId?.trim();
+    console.log(productId)
+    if(!mongoose.Types.ObjectId.isValid(productId)){
+      return res.status(400).json({message : "Invalid product id"})
+    }
+    const { name, description, categoryId, variants, images } = req.body;
 
+    const product = await PRODUCT.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (categoryId) {
+      const category = await CATEGORY.findById(categoryId);
+      if (!category || !category.isActive) {
+        return res.status(400).json({
+          message: "Category does not exist or is inactive",
+        });
+      }
+      product.categoryRef = categoryId;
+    }
+
+
+    if (name && name !== product.name) {
+      const newSlug = name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-");
+
+      const slugExists = await PRODUCT.findOne({
+        slug: newSlug,
+        _id: { $ne: productId },
+      });
+
+      if (slugExists) {
+        return res.status(400).json({
+          message: "Product with similar name already exists",
+        });
+      }
+
+      product.name = name;
+      product.slug = newSlug;
+    }
+
+    if (description !== undefined) {
+      product.description = description; 
+    }
+
+    if (Array.isArray(images)) {
+      product.images = images;
+    }
+
+    if (Array.isArray(variants)) {
+      if (variants.length === 0) {
+        return res.status(400).json({
+          message: "At least one variant is required",
+        });
+      }
+
+      const skuSet = new Set();
+      let minPrice = Infinity;
+      let maxPrice = 0;
+
+      for (const v of variants) {
+        if (
+          !v.sku ||
+          !v.label ||
+          typeof v.price !== "number" ||
+          typeof v.stock !== "number" ||
+          v.price < 0 ||
+          v.stock < 0
+        ) {
+          return res.status(400).json({
+            message: "Invalid variant data",
+          });
+        }
+
+        if (skuSet.has(v.sku)) {
+          return res.status(400).json({
+            message: `Duplicate SKU found: ${v.sku}`,
+          });
+        }
+
+        skuSet.add(v.sku);
+        minPrice = Math.min(minPrice, v.price);
+        maxPrice = Math.max(maxPrice, v.price);
+      }
+
+      product.variants = variants;
+      product.minPrice = minPrice;
+      product.maxPrice = maxPrice;
+    }
+
+    await product.save();
+
+    return res.status(200).json({
+      message: "Product updated successfully",
+      product,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
+async function DeleteProduct(req,res){
+  const {id} =req.params;
+  if(!id){
+    return res.status(400).json({message : "Please enter id"})
+  }
+  const Product = await PRODUCT.findByIdAndDelete(id)
+  if(!Product){
+    return res.status(400).json({message : "Product id not exist"})
+  }
+  return res.status(200).json({
+    message : "Here is your deleted product :- ",
+    Product
+  })
+}
 module.exports = {
   ViewAllUser,
   GetUserById,
@@ -306,5 +428,7 @@ module.exports = {
   CreateCategory,
   GetAllCategories,
   CreateProduct,
-  GetAllProducts
+  GetAllProducts,
+  EditProduct,
+  DeleteProduct
 };

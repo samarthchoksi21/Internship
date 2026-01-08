@@ -9,7 +9,9 @@ const {
   GetAllCategories,
   CreateProduct,
   GetAllProducts,
-  GetUserById
+  GetUserById,
+  EditProduct,
+  DeleteProduct
 } = require("../controller/admin");
 
 const { checkAuth } = require("../middlewares/auth");
@@ -22,4 +24,6 @@ Router.post("/createCategory", checkAuth("category:create"), CreateCategory);
 Router.get("/getAllcategories", checkAuth("category:view"), GetAllCategories);
 Router.post('/product',checkAuth("product:create"),CreateProduct)
 Router.get('/product',checkAuth("product:view"),GetAllProducts)
+Router.post('/product/:productId',checkAuth("product:update"),EditProduct)
+Router.delete('/product/:id',checkAuth("product:delete"),DeleteProduct)
 module.exports = Router;
