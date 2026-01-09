@@ -61,6 +61,32 @@ async function CreateUser(req, res) {
 
   return res.status(200).json({ message: "User created successfully" });
 }
+async function UpdateUser(req,res){
+  const {id} = req.params;
+  const {username , email ,password } = req.body;
+  const user = await USER.findById(id)
+  if(!user){
+    return res.status(400).json({message : "USER NOT FOUND"})
+  }
+  if(username){
+    user.username = username
+  }
+  if(email){
+    user.email = email.trim().toLowerCase();
+  }
+  if(password){
+    if(password.length <6){
+      return res.status(400).json({message : "Password is too short"})
+    }
+    const hashedPassword = await bcrypt.hash(password,10)
+    user.password = hashedPassword
+  }
+  await user.save()
+  return res.status(200).json({
+    message : "User updated successfully",
+    UpdatedUser : user
+  })
+}
 async function DeleteUser(req, res) {
   try {
     const { id } = req.params;
@@ -424,6 +450,7 @@ module.exports = {
   GetUserById,
   CreateUser,
   DeleteUser,
+  UpdateUser,
   ChangeRole,
   CreateCategory,
   GetAllCategories,

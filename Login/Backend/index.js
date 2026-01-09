@@ -26,8 +26,6 @@ require('./Models/products')
 app.use('/admin',VerifyUser,AdminRoute)
 app.use('/',UserRoute)
 MongoConnection()
-
-
 app.listen(3000,()=>{
     console.log("SERVER STARTED..!!")
 })

@@ -140,7 +140,7 @@ async function HandleLoginPage(req, res) {
     if (!email || !password) {
       return res.status(400).json({ Message: "Enter credentials" });
     }
-    const user = await USER.findOne({ email });
+    const user = await USER.findOne({ email }).populate('roleRef')
     if (!user) {
       return res.status(400).json({ Message: "Email not found" });
     }
@@ -151,10 +151,14 @@ async function HandleLoginPage(req, res) {
     const tokens = GenerateTokens(user)
     res.cookie("token", tokens,{
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "lax",
        maxAge: 24 * 60 * 60 * 1000
     })
-    return res.status(200).json({message : "Login successfully"})
+    const RoleName = user.roleRef.name
+    return res.status(200).json({
+      message : "Login successfully",
+      role : RoleName
+    })
   } catch (error) {
     if (error) {
       return res.status(500).json({ Message: "Error while login" });
@@ -302,7 +306,6 @@ async function GetAllProductsPublic(req, res) {
         .skip(skip)
         .limit(limit)
         .lean(),
-
       PRODUCT.countDocuments(filter),
     ]);
 
@@ -336,6 +339,20 @@ async function GetAllProductsPublic(req, res) {
     });
   }
 }
+async function GetMyDetail(req, res) {
+  const user = req.user;
+
+  return res.status(200).json({
+    message: "Here is your detail",
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.roleRef.name,
+      permissions: user.roleRef.permissions.map(p => p.name)
+    }
+  });
+}
 
 module.exports = {
   HandleSignupPage,
@@ -345,5 +362,6 @@ module.exports = {
   HandleResendOtp,
   GetOtpForChangingPassword,
   HandleForgotPasswordEmailSendOtp,
-  GetAllProductsPublic
+  GetAllProductsPublic,
+  GetMyDetail
 };

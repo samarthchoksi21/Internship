@@ -1,12 +1,33 @@
+
+
 let allProducts = [];
 let cart = [];
+
+// ================= AUTH GUARD =================
+async function verifyUser() {
+    try {
+        const res = await fetch("http://localhost:3000/auth/verify", {
+            credentials: "include"
+        });
+
+        if (!res.ok) {
+            window.location.href = "http://localhost:5500/Login/public/login.html";
+            return;
+        }
+    } catch (err) {
+        console.log("ERROR WHILE VERIFYING USER",err)
+        return;
+    }
+}
+// =============================================
 
 // 1. Fetch from your real backend
 async function loadProducts() {
     try {
-        const response = await fetch('http://localhost:3000/allproduct');
+        const response = await fetch('http://localhost:3000/allproduct', {
+            credentials: "include"
+        });
         const data = await response.json();
-        // Since your response is an object, we grab the array
         allProducts = Array.isArray(data) ? data : data.products || data.data || [];
         renderGrid(allProducts);
     } catch (err) {
@@ -127,4 +148,8 @@ function hidePopup() {
     document.getElementById('cart-popup').classList.remove('show');
 }
 
-loadProducts();
+// ===== EXECUTION ORDER (IMPORTANT) =====
+(async () => {
+    await verifyUser();
+    loadProducts();
+})();

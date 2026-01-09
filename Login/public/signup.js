@@ -67,15 +67,11 @@ document
       if (!response.ok) {
         throw new Error(data.Message || "Signup failed");
       }
-
       localStorage.setItem("pendingEmail", email);
-
       window.location.href =
-        "http://127.0.0.1:5500/Login/public/otp.html";
-
+        "http://localhost:5500/Login/public/otp.html";
     } catch (error) {
       emailError.textContent = error.message;
-
       /* ---------- RESET UI ---------- */
       btn.disabled = false;
       btn.classList.remove("loading");

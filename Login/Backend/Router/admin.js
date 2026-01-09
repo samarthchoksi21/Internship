@@ -4,6 +4,7 @@ const {
   ViewAllUser,
   CreateUser,
   DeleteUser,
+  UpdateUser,
   ChangeRole,
   CreateCategory,
   GetAllCategories,
@@ -19,6 +20,7 @@ Router.get("/allusers", checkAuth("user:view"), ViewAllUser);
 Router.get('/user/:id',checkAuth("user:view"),GetUserById)
 Router.post("/createUser", checkAuth("user:create"), CreateUser);
 Router.delete("/user/:id", checkAuth("user:delete"), DeleteUser);
+Router.post('/updateuser/:id',checkAuth("user:update"),UpdateUser)
 Router.post("/changerole/:id", checkAuth("user:change_role"), ChangeRole);
 Router.post("/createCategory", checkAuth("category:create"), CreateCategory);
 Router.get("/getAllcategories", checkAuth("category:view"), GetAllCategories);

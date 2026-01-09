@@ -37,7 +37,7 @@ form.addEventListener("submit", async (e) => {
     .join("");
 
   const email = localStorage.getItem("pendingEmail");
-
+  console.log(email);
   if (!email) {
     errorBox.textContent = "Session expired. Please signup again.";
     return;
@@ -69,7 +69,7 @@ form.addEventListener("submit", async (e) => {
     localStorage.removeItem("pendingEmail");
 
     window.location.href =
-      "http://127.0.0.1:5500/Login/public/login.html";
+      "http://localhost:5500/Login/public/login.html";
 
   } catch (err) {
     errorBox.textContent = err.message || "Server error. Try again.";
