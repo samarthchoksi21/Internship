@@ -10,7 +10,8 @@ const {
   GetOtpForChangingPassword,
   HandleForgotPasswordEmailSendOtp,
   GetAllProductsPublic,
-  GetMyDetail
+  GetMyDetail,
+  Logout
 } = require("../controller/user");
 router.post("/signup", HandleSignupPage);
 router.post("/login", HandleLoginPage);
@@ -21,6 +22,7 @@ router.post('/forgotpasswordemail',HandleForgotPasswordEmailSendOtp);
 router.post("/re-send", HandleResendOtp);
 router.get('/allproduct',VerifyUser,GetAllProductsPublic)
 router.get('/me',VerifyUser,GetMyDetail)
+router.get('/logout',VerifyUser,Logout)
 router.get("/auth/verify", VerifyUser, (req, res) => {
   res.status(200).json({
     loggedIn: true,

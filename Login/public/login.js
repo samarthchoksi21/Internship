@@ -26,16 +26,17 @@ document
     /* 🔥 ENTER LOADING STATE */
     btn.disabled = true;
     btn.classList.add("loading");
-    btnText.textContent = "Logging in...";
+    btnText.textContent = "Verifying...";
     loader.classList.remove("hidden");
 
     try {
       const response = await fetch("http://localhost:3000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials : "include",
+        credentials: "include", // Ensures the httpOnly cookie is accepted
         body: JSON.stringify({ email, password })
       });
+      
       const data = await response.json();
 
       if (!response.ok) {
@@ -43,9 +44,19 @@ document
           data.Message || data.error || "Invalid login credentials"
         );
       }
-      window.location.href =
-        "http://localhost:5500/Login/public/WebPage.html";
 
+      /* ✅ NEW LOGIC: Save user details for the UI */
+      localStorage.setItem('role', data.role); // This will be "admin" or "user"
+      localStorage.setItem('userName', data.name);
+
+      /* 🚀 SMART REDIRECT */
+      if (data.role && data.role.toLowerCase() === 'admin') {
+        // Admin goes to the Choice Gate
+        window.location.href = "http://localhost:5500/Login/public/admin-dashboard.html"; 
+      } else {
+        // Regular user goes to the main page
+        window.location.href = "http://localhost:5500/Login/public/WebPage.html";
+      }
     } catch (error) {
       passwordError.textContent = error.message;
 

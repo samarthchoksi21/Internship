@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IRON-GEAR | Admin Command Center</title>
-    <link rel="stylesheet" href="admin-dashboard.css">
+    <link rel="stylesheet" href="alluser.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -15,18 +15,17 @@
             <div class="sidebar-top">
                 <div class="logo">IRON<span>GEAR</span></div>
                 <div class="admin-profile">
-                    <div class="avatar">A</div>
+                    <div class="avatar" id="avatar-init">A</div>
                     <div class="admin-info">
                         <p id="admin-name">Admin Account</p>
-                        <span>Verified Admin</span>
+                        <span>System Access</span>
                     </div>
                 </div>
             </div>
             <nav class="side-nav">
-                <button class="nav-link active" onclick="renderHome()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
-                <button class="nav-link" onclick="window.location.href='index.html'"><i class="fa-solid fa-store"></i> View Storefront</button>
-                <div class="nav-divider"></div>
-                <button class="nav-link logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+                <button class="nav-link active" onclick="renderHome()"><i class="fa-solid fa-house"></i> Dashboard Home</button>
+                <button class="nav-link" onclick="window.location.href='index.html'"><i class="fa-solid fa-store"></i> Shop Front</button>
+                <button class="nav-link logout-btn"><i class="fa-solid fa-power-off"></i> Logout</button>
             </nav>
         </aside>
 
@@ -39,10 +38,11 @@
                 <div id="header-actions"></div>
             </header>
 
-            <div id="dynamic-content" class="content-area"></div>
+            <div id="dynamic-content" class="content-area">
+                </div>
         </main>
     </div>
 
-    <script src="admin-dashboard.js"></script>
+    <script src="alluser.js"></script>
 </body>
 </html>

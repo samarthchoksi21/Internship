@@ -1,10 +1,10 @@
 const { USER } = require("../Models/user");
 const { OTP } = require("../Models/otp");
 const { PENDINGUSER } = require("../Models/pendinguser");
-const {ROLE} = require('../Models/roles')
-const {PRODUCT} = require('../Models/products')
+const { ROLE } = require("../Models/roles");
+const { PRODUCT } = require("../Models/products");
 const { sendOtp } = require("../utils/mailer");
-const {GenerateTokens,VerifyUser} = require('../service/auth')
+const { GenerateTokens, VerifyUser } = require("../service/auth");
 const bcrypt = require("bcrypt");
 function GenerateOtp() {
   return Math.floor(100000 + Math.random() * 900000);
@@ -45,8 +45,8 @@ async function HandleSignupPage(req, res) {
       },
       { upsert: true }
     );
-    const text = `Your OTP for signup is ${otp}. Please dont share this OTP with anyone.If you didnt sent this otp please ignore this message.`
-    await sendOtp(email, otp,text);
+    const text = `Your OTP for signup is ${otp}. Please dont share this OTP with anyone.If you didnt sent this otp please ignore this message.`;
+    await sendOtp(email, otp, text);
     return res.status(201).json({
       message: "OTP sent to email",
     });
@@ -86,15 +86,15 @@ async function VerifyOtp(req, res) {
   if (!PendingUser) {
     return res.status(400).json({ Status: "Session expired" });
   }
-  const userRole = await ROLE.findOne({name : "USER"})
-  if(!userRole){
-    return res.status(400).json({message : "Seed role first"})
+  const userRole = await ROLE.findOne({ name: "USER" });
+  if (!userRole) {
+    return res.status(400).json({ message: "Seed role first" });
   }
   await USER.create({
     username: PendingUser.username,
     email: PendingUser.email,
     password: PendingUser.passwordHash,
-    roleRef : userRole._id
+    roleRef: userRole._id,
   });
   await PENDINGUSER.deleteOne({ email });
   return res.status(200).json({
@@ -102,34 +102,33 @@ async function VerifyOtp(req, res) {
   });
 }
 async function GetOtpForChangingPassword(req, res) {
-  
   const { email, otp } = req.body;
   if (!email || !otp) {
     return res.status(400).json({
       Status: "Please Enter OTP",
     });
   }
-  
+
   const OtpRecord = await OTP.findOne({ email });
   if (!OtpRecord) {
     return res.status(400).json({
       status: "OTP not found",
     });
   }
-  
+
   if (OtpRecord.expiresAt < Date.now()) {
     return res.status(400).json({
       Status: "OTP expired",
     });
   }
-  
+
   const IsOtpValid = await bcrypt.compare(otp.toString(), OtpRecord.otpHash);
   if (!IsOtpValid) {
     return res.status(400).json({
       Status: "Invalid Otp",
     });
   }
-  
+
   return res.status(200).json({
     status: "VALID OTP",
   });
@@ -140,7 +139,7 @@ async function HandleLoginPage(req, res) {
     if (!email || !password) {
       return res.status(400).json({ Message: "Enter credentials" });
     }
-    const user = await USER.findOne({ email }).populate('roleRef')
+    const user = await USER.findOne({ email }).populate("roleRef");
     if (!user) {
       return res.status(400).json({ Message: "Email not found" });
     }
@@ -148,17 +147,17 @@ async function HandleLoginPage(req, res) {
     if (!isMatch) {
       return res.status(400).json({ Message: "Invalid password" });
     }
-    const tokens = GenerateTokens(user)
-    res.cookie("token", tokens,{
+    const tokens = GenerateTokens(user);
+    res.cookie("token", tokens, {
       httpOnly: true,
       sameSite: "lax",
-       maxAge: 24 * 60 * 60 * 1000
-    })
-    const RoleName = user.roleRef.name
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    const RoleName = user.roleRef.name;
     return res.status(200).json({
-      message : "Login successfully",
-      role : RoleName
-    })
+      message: "Login successfully",
+      role: RoleName,
+    });
   } catch (error) {
     if (error) {
       return res.status(500).json({ Message: "Error while login" });
@@ -229,8 +228,8 @@ async function HandleForgotPasswordEmailSendOtp(req, res) {
       },
       { upsert: true }
     );
-    const text = `Your OTP for changing password is ${otp}. Dont share this OTP with anyone. if you didnt send any OTP please ignore this message`
-    await sendOtp(email,otp,text)
+    const text = `Your OTP for changing password is ${otp}. Dont share this OTP with anyone. if you didnt send any OTP please ignore this message`;
+    await sendOtp(email, otp, text);
     return res.status(200).json({ Message: "OTP sent to your email" });
   } catch (error) {
     return res.status(500).json({ Message: "Server error" });
@@ -275,8 +274,8 @@ async function HandleResendOtp(req, res) {
       otpHash,
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
-    const text = `Your OTP for after resending is ${otp}.`
-    await sendOtp(email, otp,text);
+    const text = `Your OTP for after resending is ${otp}.`;
+    await sendOtp(email, otp, text);
     return res.status(200).json({
       Status: "OTP sent successfully",
     });
@@ -310,11 +309,11 @@ async function GetAllProductsPublic(req, res) {
     ]);
 
     // Remove sensitive variant fields
-    const sanitizedProducts = products.map(product => ({
+    const sanitizedProducts = products.map((product) => ({
       ...product,
       variants: product.variants
-        .filter(v => v.isActive)
-        .map(v => ({
+        .filter((v) => v.isActive)
+        .map((v) => ({
           label: v.label,
           price: v.price,
           imageUrl: v.imageUrl,
@@ -349,9 +348,17 @@ async function GetMyDetail(req, res) {
       username: user.username,
       email: user.email,
       role: user.roleRef.name,
-      permissions: user.roleRef.permissions.map(p => p.name)
-    }
+      permissions: user.roleRef.permissions.map((p) => p.name),
+    },
   });
+}
+async function Logout(req, res) {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "strict",
+  });
+  return res.status(200).json({message : "Logout successfullya"})
 }
 
 module.exports = {
@@ -363,5 +370,6 @@ module.exports = {
   GetOtpForChangingPassword,
   HandleForgotPasswordEmailSendOtp,
   GetAllProductsPublic,
-  GetMyDetail
+  GetMyDetail,
+  Logout
 };
