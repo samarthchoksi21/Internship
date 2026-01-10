@@ -7,6 +7,7 @@
   --text-dark: #1e293b;
   --text-muted: #64748b;
   --danger: #ef4444;
+  --success: #10b981;
 }
 
 * {
@@ -42,6 +43,7 @@ body {
   font-size: 24px;
   font-weight: 800;
   margin-bottom: 25px;
+  transition: 0.3s;
 }
 .logo span {
   color: var(--primary);
@@ -53,16 +55,6 @@ body {
   background: rgba(255, 255, 255, 0.03);
   padding: 12px;
   border-radius: 12px;
-}
-.avatar {
-  width: 35px;
-  height: 35px;
-  background: var(--primary);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
 }
 
 .side-nav {
@@ -80,37 +72,55 @@ body {
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 5px;
+  text-align: left;
 }
-.nav-link.active,
 .nav-link:hover {
-  background: rgba(0, 98, 255, 0.1);
-  color: var(--primary);
-}
-.nav-divider {
-  height: 1px;
   background: rgba(255, 255, 255, 0.05);
-  margin: 20px 0;
+  color: white;
+  transform: translateX(5px);
 }
-.logout-btn {
-  color: #f87171 !important;
+.nav-link.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 98, 255, 0.3);
 }
 
 /* Workspace */
 .workspace {
   flex: 1;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 .workspace-header {
   padding: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+/* --- UPDATED WORKSPACE BACKGROUND --- */
+.workspace { 
+    flex: 1; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column;
+    /* This creates a sophisticated slate-to-light-gray gradient */
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    position: relative;
+}
+
+/* Optional: Add a subtle decorative "glow" in the corner for depth */
+.workspace::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0, 98, 255, 0.05) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
 }
 .header-text h1 {
   font-size: 28px;
@@ -121,37 +131,67 @@ body {
   padding: 0 40px 40px;
 }
 
-/* Cards & Forms */
+/* Dashboard Grid & Sectioning */
+.dashboard-section {
+  margin-bottom: 45px;
+  animation: slideUp 0.5s ease forwards;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.section-header i {
+  color: var(--primary);
+  font-size: 20px;
+}
+.section-header h3 {
+  font-size: 19px;
+  font-weight: 700;
+}
+
 .command-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 .action-card {
   background: white;
-  padding: 25px;
-  border-radius: 20px;
+  padding: 22px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid transparent;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 .action-card:hover {
-  transform: translateY(-5px);
-  border: 1px solid var(--primary);
+  transform: translateY(-8px);
+  border-color: var(--primary);
+  box-shadow: 0 15px 30px rgba(0, 98, 255, 0.1);
+}
+.action-card:active {
+  transform: scale(0.95);
 }
 
 .icon-box {
   width: 50px;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
+  transition: 0.3s;
 }
+.action-card:hover .icon-box {
+  transform: rotate(10deg);
+}
+
+/* Colors */
 .blue {
   background: #eff6ff;
   color: #3b82f6;
@@ -164,12 +204,18 @@ body {
   background: #ecfdf5;
   color: #10b981;
 }
+.orange {
+  background: #fff7ed;
+  color: #f97316;
+}
 
+/* Tables & Forms */
 .table-wrapper {
   background: white;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  animation: fadeIn 0.6s ease;
 }
 .admin-table {
   width: 100%;
@@ -178,114 +224,155 @@ body {
 .admin-table th {
   background: #f8fafc;
   text-align: left;
-  padding: 18px;
-  font-size: 12px;
+  padding: 20px;
+  font-size: 11px;
   color: var(--text-muted);
   text-transform: uppercase;
+  letter-spacing: 1px;
 }
 .admin-table td {
   padding: 18px;
   border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
+  transition: 0.2s;
+}
+.admin-table tr:hover td {
+  background: #fcfdfe;
 }
 
 .form-container {
   background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 35px;
+  border-radius: 22px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+  animation: slideUp 0.4s ease;
 }
-.update-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
 .form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 20px;
 }
 .form-group label {
-  font-size: 13px;
+  display: block;
+  margin-bottom: 8px;
   font-weight: 700;
+  font-size: 13px;
   color: var(--text-muted);
 }
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
+  width: 100%;
   padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  border: 2px solid #f1f5f9;
   outline: none;
+  transition: 0.3s;
+  font-family: inherit;
+}
+.form-group input:focus {
+  border-color: var(--primary);
+  background: #fff;
 }
 
 .btn-primary-action {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   background: var(--primary);
   color: white;
   border: none;
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: 0.3s;
 }
-.btn-back {
+.btn-primary-action:hover {
   background: var(--navy);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-delete {
-  background: #fee2e2;
-  color: var(--danger);
-  border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.btn-edit {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-right: 5px;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.role-badge {
-  background: #e0e7ff;
-  color: #4338ca;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-}
-.animate-in {
-  animation: fadeInUp 0.4s ease forwards;
-}
-@keyframes fadeInUp {
+/* Animations */
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-@media (max-width: 900px) {
-  .update-grid {
-    grid-template-columns: 1fr;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
+/* --- BUTTON STYLES --- */
+.btn-back { 
+    background: var(--navy); 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px; 
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.btn-back:hover {
+    background: var(--primary);
+    transform: translateX(-5px);
+    box-shadow: 0 4px 12px rgba(0, 98, 255, 0.2);
+}
+
+.btn-delete { 
+    background: #fee2e2; 
+    color: var(--danger); 
+    border: none; 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete:hover {
+    background: var(--danger);
+    color: white;
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-edit { 
+    background: #e0f2fe; 
+    color: #0369a1; 
+    border: none; 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    margin-right: 8px;
+    transition: 0.3s;
+}
+
+.btn-edit:hover {
+    background: #0369a1;
+    color: white;
+}
+
+/* Ensure Table Rows Animate */
+.admin-table tbody tr {
+    animation: fadeIn 0.4s ease forwards;
+    opacity: 0;
+}
+.admin-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.admin-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.admin-table tbody tr:nth-child(3) { animation-delay: 0.15s; }

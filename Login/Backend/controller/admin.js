@@ -210,6 +210,20 @@ async function GetAllCategories(req, res) {
     });
   }
 }
+async function DeleteCategory(req,res){
+  const {id} = req.params;
+  if(!id){
+    return res.status(400).json({message : "Please enter ID :"})
+  }
+  const category = await CATEGORY.findByIdAndDelete(id);
+  if(!category){
+    return res.status(400).json({message : "Category not found"})
+  }
+  return res.status(200).json({
+    message : "Here is you deleted Category ",
+    deletedCategory : category
+  })
+}
 
 async function CreateProduct(req, res) {
   try {
@@ -454,6 +468,7 @@ module.exports = {
   ChangeRole,
   CreateCategory,
   GetAllCategories,
+  DeleteCategory,
   CreateProduct,
   GetAllProducts,
   EditProduct,

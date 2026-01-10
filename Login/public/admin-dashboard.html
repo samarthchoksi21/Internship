@@ -9,22 +9,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <div class="admin-layout">
         <aside class="sidebar">
             <div class="sidebar-top">
                 <div class="logo">IRON<span>GEAR</span></div>
                 <div class="admin-profile">
                     <div class="avatar">A</div>
-                    <div class="admin-info">
-                        <p id="admin-name">Admin Account</p>
-                        <span>Verified Admin</span>
-                    </div>
+                    <div class="admin-info"><p id="admin-name">Admin Account</p><span>Verified Admin</span></div>
                 </div>
             </div>
             <nav class="side-nav">
-                <button class="nav-link active" onclick="renderHome()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
-                <button class="nav-link" onclick="window.location.href='http://localhost:5500/Login/public/WebPage.html'"><i class="fa-solid fa-store"></i> View Storefront</button>
+                <button class="nav-link active" id="nav-home" onclick="renderHome()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
+                <button class="nav-link" id="nav-users" onclick="fetchAllUsers()"><i class="fa-solid fa-users"></i> User Manager</button>
+                <button class="nav-link" id="nav-cats" onclick="renderCategoryList()"><i class="fa-solid fa-layer-group"></i> Categories</button>
                 <div class="nav-divider"></div>
                 <button class="nav-link logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
             </nav>
@@ -38,11 +35,9 @@
                 </div>
                 <div id="header-actions"></div>
             </header>
-
             <div id="dynamic-content" class="content-area"></div>
         </main>
     </div>
-
     <script src="admin-dashboard.js"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@ const {
   ChangeRole,
   CreateCategory,
   GetAllCategories,
+  DeleteCategory,
   CreateProduct,
   GetAllProducts,
   GetUserById,
@@ -24,6 +25,7 @@ Router.post('/updateuser/:id',checkAuth("user:update"),UpdateUser)
 Router.post("/changerole/:id", checkAuth("user:change_role"), ChangeRole);
 Router.post("/createCategory", checkAuth("category:create"), CreateCategory);
 Router.get("/getAllcategories", checkAuth("category:view"), GetAllCategories);
+Router.delete('/category/:id',checkAuth("category:delete"),DeleteCategory)
 Router.post('/product',checkAuth("product:create"),CreateProduct)
 Router.get('/product',checkAuth("product:view"),GetAllProducts)
 Router.post('/product/:productId',checkAuth("product:update"),EditProduct)
