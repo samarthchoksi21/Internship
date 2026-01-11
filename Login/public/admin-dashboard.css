@@ -367,6 +367,20 @@ body {
     background: #0369a1;
     color: white;
 }
+/* Add this to your existing CSS file - Don't change anything else */
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #f1f5f9;
+}
+.update-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+@media (max-width: 900px) { .update-grid { grid-template-columns: 1fr; } }
 
 /* Ensure Table Rows Animate */
 .admin-table tbody tr {

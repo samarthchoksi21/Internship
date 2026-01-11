@@ -22,8 +22,8 @@ function setActiveNav(id) {
 function renderHome() {
     setActiveNav('nav-home');
     viewTitle.innerText = "Command Center";
-    viewSubtitle.innerText = "Unified control for Iron-Gear users and shop inventory.";
-    headerActions.innerHTML = ''; // No back button on home
+    viewSubtitle.innerText = "Unified control for Iron-Gear users, shop inventory, and products.";
+    headerActions.innerHTML = ''; 
     
     workspace.innerHTML = `
         <div class="animate-in">
@@ -62,8 +62,78 @@ function renderHome() {
                     </div>
                 </div>
             </section>
+
+            <section class="dashboard-section">
+                <div class="section-header"><i class="fa-solid fa-boxes-stacked"></i><h3>Product Catalog</h3></div>
+                <div class="command-grid">
+                    <div class="action-card" onclick="fetchProducts()">
+                        <div class="icon-box blue"><i class="fa-solid fa-box-open"></i></div>
+                        <div class="card-text"><h4>Master Inventory</h4><p>Manage All Products</p></div>
+                    </div>
+                    <div class="action-card" onclick="renderAddProductForm()">
+                        <div class="icon-box green"><i class="fa-solid fa-plus"></i></div>
+                        <div class="card-text"><h4>Add Product</h4><p>Create New Listing</p></div>
+                    </div>
+                    <div class="action-card" onclick="alert('Coming Soon: Stock Alerts')">
+                        <div class="icon-box orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="card-text"><h4>Stock Watch</h4><p>Low Inventory Tracking</p></div>
+                    </div>
+                </div>
+            </section>
         </div>
     `;
+}
+async function fetchProducts(page = 1) {
+    // Note: You may want to add a nav-products button to your HTML sidebar later
+    viewTitle.innerText = "Master Inventory";
+    viewSubtitle.innerText = "Manage products, variants, and real-time stock levels.";
+    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+    
+    try {
+        const res = await fetch(`http://localhost:3000/admin/product?page=${page}&limit=10`, { credentials: 'include' });
+        const data = await res.json();
+        
+        if (res.ok) {
+            workspace.innerHTML = `
+                <div class="table-wrapper animate-in">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Product Details</th>
+                                <th>Category</th>
+                                <th>Variants (Price/Stock)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.products.map(p => `
+                                <tr>
+                                    <td><strong>${p.name}</strong><br><small>${p.slug}</small></td>
+                                    <td><span class="role-badge" style="background:#e0f2fe; color:#0369a1;">${p.categoryRef?.name || 'N/A'}</span></td>
+                                    <td>
+                                        <div style="display:flex; flex-direction:column; gap:4px;">
+                                            ${p.variants.map(v => `
+                                                <small>• ${v.label}: <strong>$${v.price}</strong> (${v.stock} pcs)</small>
+                                            `).join('')}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-edit" onclick="renderEditProduct('${p._id}')"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-delete" onclick="deleteProduct('${p._id}', '${p.name}')"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+                    ${Array.from({length: data.pagination.totalPages}, (_, i) => i + 1).map(pageNum => `
+                        <button class="btn-back" style="background:${pageNum === page ? 'var(--primary)' : 'var(--navy)'}" 
+                                onclick="fetchProducts(${pageNum})">${pageNum}</button>
+                    `).join('')}
+                </div>
+            `;
+        }
+    } catch (e) { workspace.innerHTML = "<p>Connection Error to Product API.</p>"; }
 }
 
 // --- 3. USER MANAGEMENT LOGIC ---
@@ -273,7 +343,140 @@ function renderCreateForm() {
         const d = await res.json(); alert(d.message); if(res.ok) fetchAllUsers();
     };
 }
+// --- DYNAMIC VARIANT MANAGEMENT (Updated with Image Support) ---
+let productVariants = [];
 
+function addVariantToForm() {
+    const label = document.getElementById('vLabel').value;
+    const price = parseFloat(document.getElementById('vPrice').value);
+    const stock = parseInt(document.getElementById('vStock').value);
+    const sku = document.getElementById('vSku').value;
+    const vImg = document.getElementById('vImg').value; // New Image Input
+
+    if (!label || isNaN(price) || isNaN(stock) || !sku) {
+        alert("Please fill all variant fields (Image is optional but recommended)");
+        return;
+    }
+
+    if (productVariants.some(v => v.sku === sku)) {
+        alert("Duplicate SKU in current list.");
+        return;
+    }
+
+    // Push the variant including the image URL
+    productVariants.push({ 
+        label, 
+        price, 
+        stock, 
+        sku, 
+        image: vImg // Your controller/schema expects this
+    });
+    
+    updateVariantListUI();
+
+    // Clear variant inputs
+    document.getElementById('vLabel').value = '';
+    document.getElementById('vPrice').value = '';
+    document.getElementById('vStock').value = '';
+    document.getElementById('vSku').value = '';
+    document.getElementById('vImg').value = '';
+}
+
+function updateVariantListUI() {
+    const list = document.getElementById('variantList');
+    if (productVariants.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; font-size:13px;">No variants added yet.</p>`;
+        return;
+    }
+
+    list.innerHTML = productVariants.map((v, index) => `
+        <div class="role-badge" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#fff; padding:12px; border:1px solid #e2e8f0;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; background:#f1f5f9; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                    ${v.image ? `<img src="${v.image}" style="width:100%; height:100%; object-fit:cover;">` : `<i class="fa-solid fa-image" style="color:#cbd5e1"></i>`}
+                </div>
+                <div>
+                    <div style="font-weight:700; font-size:13px;">${v.label} <span style="color:var(--primary)">(${v.sku})</span></div>
+                    <small style="color:var(--text-muted)">$${v.price} | Stock: ${v.stock}</small>
+                </div>
+            </div>
+            <button type="button" onclick="productVariants.splice(${index}, 1); updateVariantListUI();" 
+                    style="border:none; background:#fee2e2; color:var(--danger); cursor:pointer; width:28px; height:28px; border-radius:6px;">
+                <i class="fa-solid fa-trash-can" style="font-size:12px;"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+async function renderAddProductForm() {
+    productVariants = []; 
+    viewTitle.innerText = "New Product Entry";
+    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+
+    try {
+        const catRes = await fetch('http://localhost:3000/admin/getAllcategories', { credentials: 'include' });
+        const catData = await catRes.json();
+        const catOptions = catData.categories.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+
+        workspace.innerHTML = `
+            <div class="update-grid animate-in">
+                <div class="form-container">
+                    <h3>Basic Information</h3>
+                    <form id="productForm">
+                        <div class="form-group"><label>Product Name</label><input type="text" id="pN" placeholder="e.g. Premium Whey Gold" required></div>
+                        <div class="form-group"><label>Category</label><select id="pC" required><option value="">Select Category</option>${catOptions}</select></div>
+                        <div class="form-group"><label>Description</label><textarea id="pD" rows="3" placeholder="Describe the product benefits..."></textarea></div>
+                        <div class="form-group"><label>Main Product Gallery (Comma separated URLs)</label><input type="text" id="pI" placeholder="url1, url2"></div>
+                        <hr style="margin:20px 0; border:0; border-top:1px solid #f1f5f9;">
+                        <button type="submit" class="btn-primary-action" style="width:100%">Publish Entire Product</button>
+                    </form>
+                </div>
+
+                <div class="form-container">
+                    <h3>Product Variants</h3>
+                    <div style="background:#f8fafc; padding:18px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:15px;">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                            <div class="form-group"><label>Label (Flavor/Size)</label><input type="text" id="vLabel" placeholder="e.g. Chocolate 2kg"></div>
+                            <div class="form-group"><label>SKU</label><input type="text" id="vSku" placeholder="WHEY-CHOC-2"></div>
+                            <div class="form-group"><label>Price ($)</label><input type="number" id="vPrice" placeholder="59.99"></div>
+                            <div class="form-group"><label>Stock</label><input type="number" id="vStock" placeholder="50"></div>
+                        </div>
+                        <div class="form-group" style="margin-top:10px;"><label>Variant Image URL</label><input type="text" id="vImg" placeholder="https://image-link.com/choc.jpg"></div>
+                        <button type="button" onclick="addVariantToForm()" class="btn-primary-action" style="background:var(--navy); margin-top:10px; width:100%">+ Add Variant to List</button>
+                    </div>
+                    <div id="variantList" style="max-height: 300px; overflow-y: auto; padding-right: 5px;">
+                        <p style="color:var(--text-muted); text-align:center; font-size:13px;">No variants added yet.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('productForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (productVariants.length === 0) { alert("Add at least one variant."); return; }
+
+            const productData = {
+                name: document.getElementById('pN').value,
+                description: document.getElementById('pD').value,
+                categoryId: document.getElementById('pC').value,
+                images: document.getElementById('pI').value.split(',').map(s => s.trim()).filter(s => s),
+                variants: productVariants
+            };
+
+            const res = await fetch('http://localhost:3000/admin/product', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(productData)
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            if (res.ok) fetchProducts();
+        };
+    } catch (e) { alert("Error loading form."); }
+}
+async function deleteProduct(id, name) { alert("Ready for your Delete Product API!"); }
 // --- 6. UTILITIES ---
 function logout() {
     localStorage.clear();
