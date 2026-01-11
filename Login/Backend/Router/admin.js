@@ -1,4 +1,5 @@
 const express = require("express");
+const {PRODUCT} = require('../Models/products')
 const Router = express.Router();
 const {
   ViewAllUser,
@@ -30,4 +31,9 @@ Router.post('/product',checkAuth("product:create"),CreateProduct)
 Router.get('/product',checkAuth("product:view"),GetAllProducts)
 Router.post('/product/:productId',checkAuth("product:update"),EditProduct)
 Router.delete('/product/:id',checkAuth("product:delete"),DeleteProduct)
+Router.get('/product/:productId', checkAuth("product:view"), async (req, res) => {
+    const product = await PRODUCT.findById(req.params.productId).populate('categoryRef');
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json({ product });
+});
 module.exports = Router;

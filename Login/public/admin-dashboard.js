@@ -385,32 +385,30 @@ function addVariantToForm() {
 function updateVariantListUI() {
     const list = document.getElementById('variantList');
     if (productVariants.length === 0) {
-        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; font-size:13px;">No variants added yet.</p>`;
+        list.innerHTML = `<p style="color:#94a3b8; text-align:center; padding:20px; border: 2px dashed #e2e8f0; border-radius:12px;">No variants added yet.</p>`;
         return;
     }
 
     list.innerHTML = productVariants.map((v, index) => `
-        <div class="role-badge" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#fff; padding:12px; border:1px solid #e2e8f0;">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:40px; height:40px; background:#f1f5f9; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                    ${v.image ? `<img src="${v.image}" style="width:100%; height:100%; object-fit:cover;">` : `<i class="fa-solid fa-image" style="color:#cbd5e1"></i>`}
-                </div>
-                <div>
-                    <div style="font-weight:700; font-size:13px;">${v.label} <span style="color:var(--primary)">(${v.sku})</span></div>
-                    <small style="color:var(--text-muted)">$${v.price} | Stock: ${v.stock}</small>
+        <div class="variant-item animate-in">
+            <div class="variant-info">
+                <img src="${v.image || 'https://via.placeholder.com/50'}" class="variant-img-preview" onerror="this.src='https://via.placeholder.com/50'">
+                <div class="variant-details">
+                    <h4>${v.label} <span style="color:#94a3b8; font-weight:400;">(${v.sku})</span></h4>
+                    <p><strong>$${v.price}</strong> • Stock: ${v.stock} pcs</p>
                 </div>
             </div>
-            <button type="button" onclick="productVariants.splice(${index}, 1); updateVariantListUI();" 
-                    style="border:none; background:#fee2e2; color:var(--danger); cursor:pointer; width:28px; height:28px; border-radius:6px;">
-                <i class="fa-solid fa-trash-can" style="font-size:12px;"></i>
+            <button type="button" class="btn-remove-variant" onclick="productVariants.splice(${index}, 1); updateVariantListUI();">
+                <i class="fa-solid fa-trash-can"></i>
             </button>
         </div>
     `).join('');
 }
 
 async function renderAddProductForm() {
-    productVariants = []; 
+    productVariants = []; // Reset local state
     viewTitle.innerText = "New Product Entry";
+    viewSubtitle.innerText = "Create a new catalog item with multiple inventory variants.";
     headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
     try {
@@ -423,64 +421,172 @@ async function renderAddProductForm() {
                 <div class="form-container">
                     <h3>Basic Information</h3>
                     <form id="productForm">
-                        <div class="form-group"><label>Product Name</label><input type="text" id="pN" placeholder="e.g. Premium Whey Gold" required></div>
+                        <div class="form-group"><label>Product Name</label><input type="text" id="pN" placeholder="e.g. Gold Standard Whey" required></div>
                         <div class="form-group"><label>Category</label><select id="pC" required><option value="">Select Category</option>${catOptions}</select></div>
-                        <div class="form-group"><label>Description</label><textarea id="pD" rows="3" placeholder="Describe the product benefits..."></textarea></div>
-                        <div class="form-group"><label>Main Product Gallery (Comma separated URLs)</label><input type="text" id="pI" placeholder="url1, url2"></div>
-                        <hr style="margin:20px 0; border:0; border-top:1px solid #f1f5f9;">
-                        <button type="submit" class="btn-primary-action" style="width:100%">Publish Entire Product</button>
+                        <div class="form-group"><label>Description</label><textarea id="pD" rows="3" placeholder="Product details..."></textarea></div>
+                        <div class="form-group"><label>Main Gallery (CSV URLs)</label><input type="text" id="pI" placeholder="url1, url2"></div>
+                        <button type="submit" class="btn-primary-action" style="width:100%; margin-top:20px;">Publish Product</button>
                     </form>
                 </div>
 
                 <div class="form-container">
                     <h3>Product Variants</h3>
-                    <div style="background:#f8fafc; padding:18px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:15px;">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                            <div class="form-group"><label>Label (Flavor/Size)</label><input type="text" id="vLabel" placeholder="e.g. Chocolate 2kg"></div>
-                            <div class="form-group"><label>SKU</label><input type="text" id="vSku" placeholder="WHEY-CHOC-2"></div>
-                            <div class="form-group"><label>Price ($)</label><input type="number" id="vPrice" placeholder="59.99"></div>
-                            <div class="form-group"><label>Stock</label><input type="number" id="vStock" placeholder="50"></div>
+                    <div class="variant-input-card">
+                        <div class="variant-grid">
+                            <div class="form-group"><label>Label</label><input type="text" id="vLabel" placeholder="e.g. Chocolate"></div>
+                            <div class="form-group"><label>SKU</label><input type="text" id="vSku" placeholder="WHEY-CHOC"></div>
+                            <div class="form-group"><label>Price ($)</label><input type="number" id="vPrice" step="0.01"></div>
+                            <div class="form-group"><label>Stock</label><input type="number" id="vStock"></div>
+                            <div class="form-group-full"><label>Variant Image URL</label><input type="text" id="vImg" placeholder="https://link-to-image.com"></div>
                         </div>
-                        <div class="form-group" style="margin-top:10px;"><label>Variant Image URL</label><input type="text" id="vImg" placeholder="https://image-link.com/choc.jpg"></div>
-                        <button type="button" onclick="addVariantToForm()" class="btn-primary-action" style="background:var(--navy); margin-top:10px; width:100%">+ Add Variant to List</button>
+                        <button type="button" onclick="addVariantToForm()" class="btn-primary-action" style="background:var(--navy); margin-top:15px; width:100%">+ Add Variant to List</button>
                     </div>
-                    <div id="variantList" style="max-height: 300px; overflow-y: auto; padding-right: 5px;">
-                        <p style="color:var(--text-muted); text-align:center; font-size:13px;">No variants added yet.</p>
-                    </div>
+                    <div id="variantList"></div>
                 </div>
-            </div>
-        `;
+            </div>`;
+
+        updateVariantListUI();
 
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
-            if (productVariants.length === 0) { alert("Add at least one variant."); return; }
-
-            const productData = {
-                name: document.getElementById('pN').value,
-                description: document.getElementById('pD').value,
-                categoryId: document.getElementById('pC').value,
-                images: document.getElementById('pI').value.split(',').map(s => s.trim()).filter(s => s),
+            if (productVariants.length === 0) return alert("Please add at least one variant.");
+            
+            const payload = {
+                name: pN.value, description: pD.value, categoryId: pC.value,
+                images: pI.value.split(',').map(s => s.trim()).filter(s => s),
                 variants: productVariants
             };
 
             const res = await fetch('http://localhost:3000/admin/product', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(productData)
+                method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+                body: JSON.stringify(payload)
             });
-
-            const data = await res.json();
-            alert(data.message);
-            if (res.ok) fetchProducts();
+            const d = await res.json(); alert(d.message); if(res.ok) fetchProducts();
         };
-    } catch (e) { alert("Error loading form."); }
+    } catch (e) { alert("Error loading creation form."); }
 }
-async function deleteProduct(id, name) { alert("Ready for your Delete Product API!"); }
+// --- EDIT PRODUCT LOGIC ---
+async function renderEditProduct(rawProductId) {
+    const productId = rawProductId.replace(/[^0-9a-fA-F]/g, ''); // Clean ID string
+    viewTitle.innerText = "Refine Product";
+    viewSubtitle.innerText = "Update pricing, stock, and descriptive content.";
+    headerActions.innerHTML = `<button class="btn-back" onclick="fetchProducts()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+
+    try {
+        const [prodRes, catRes] = await Promise.all([
+            fetch(`http://localhost:3000/admin/product/${productId}`, { credentials: 'include' }),
+            fetch('http://localhost:3000/admin/getAllcategories', { credentials: 'include' })
+        ]);
+
+        const prodData = await prodRes.json();
+        const catData = await catRes.json();
+        const p = prodData.product;
+
+        // Map existing variants into our dynamic builder list
+        productVariants = p.variants.map(v => ({ ...v }));
+
+        const catOptions = catData.categories.map(c => 
+            `<option value="${c._id}" ${c._id === (p.categoryRef?._id || p.categoryRef) ? 'selected' : ''}>${c.name}</option>`
+        ).join('');
+
+        workspace.innerHTML = `
+            <div class="update-grid animate-in">
+                <div class="form-container">
+                    <h3>Basic Information</h3>
+                    <form id="editProductForm">
+                        <div class="form-group"><label>Product Name</label><input type="text" id="pN" value="${p.name}" required></div>
+                        <div class="form-group"><label>Category</label><select id="pC" required>${catOptions}</select></div>
+                        <div class="form-group"><label>Description</label><textarea id="pD" rows="4">${p.description || ''}</textarea></div>
+                        <div class="form-group"><label>Gallery (CSV URLs)</label><input type="text" id="pI" value="${p.images?.join(', ') || ''}"></div>
+                        <button type="submit" class="btn-primary-action" style="width:100%; margin-top:20px;">Save All Changes</button>
+                    </form>
+                </div>
+
+                <div class="form-container">
+                    <h3>Manage Variants</h3>
+                    <div class="variant-input-card">
+                        <div class="variant-grid">
+                            <div class="form-group"><label>Label</label><input type="text" id="vLabel"></div>
+                            <div class="form-group"><label>SKU</label><input type="text" id="vSku"></div>
+                            <div class="form-group"><label>Price ($)</label><input type="number" id="vPrice" step="0.01"></div>
+                            <div class="form-group"><label>Stock</label><input type="number" id="vStock"></div>
+                            <div class="form-group-full"><label>Variant Image URL</label><input type="text" id="vImg"></div>
+                        </div>
+                        <button type="button" onclick="addVariantToForm()" class="btn-primary-action" style="background:var(--navy); margin-top:15px; width:100%">+ Update/Add Variant</button>
+                    </div>
+                    <div id="variantList"></div>
+                </div>
+            </div>`;
+
+        updateVariantListUI();
+
+        document.getElementById('editProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const res = await fetch(`http://localhost:3000/admin/product/${productId}`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+                body: JSON.stringify({
+                    name: pN.value, description: pD.value, categoryId: pC.value,
+                    images: pI.value.split(',').map(s => s.trim()).filter(s => s),
+                    variants: productVariants
+                })
+            });
+            const d = await res.json(); alert(d.message); if(res.ok) fetchProducts();
+        };
+    } catch (err) { alert("Could not fetch product details."); }
+}
+async function deleteProduct(productId, productName) {
+    // 1. Confirm with the user
+    const confirmDelete = confirm(`Are you sure you want to delete "${productName}"?\nThis action cannot be undone.`);
+    
+    if (!confirmDelete) return;
+
+    try {
+        const res = await fetch(`http://localhost:3000/admin/product/${productId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert(data.message);
+            // 2. Refresh the table to show the product is gone
+            fetchProducts(); 
+        } else {
+            alert(data.message || "Failed to delete product");
+        }
+    } catch (err) {
+        console.error("Delete Error:", err);
+        alert("Server connection error.");
+    }
+}
 // --- 6. UTILITIES ---
-function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+async function logout() {
+    // 1. Optional confirmation
+    if (!confirm("Are you sure you want to log out of the Command Center?")) return;
+
+    try {
+        const res = await fetch('http://localhost:3000/logout', {
+            method: 'GET', // Matches your router.get
+            credentials: 'include' // Crucial to send the cookie so the server can clear it
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // 2. Clear any local state if you have it
+            console.log(data.message);
+            
+            // 3. Redirect to your login page
+            window.location.href = 'http://localhost:5500/Login/public/login.html'; 
+        } else {
+            alert("Logout failed. Please try again.");
+        }
+    } catch (error) {
+        console.error("Logout Error:", error);
+        alert("Connection error.");
+    }
 }
 
 // Set admin name in sidebar
