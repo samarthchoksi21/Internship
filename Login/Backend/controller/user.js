@@ -157,6 +157,7 @@ async function HandleLoginPage(req, res) {
     return res.status(200).json({
       message: "Login successfully",
       role: RoleName,
+      username : user.username
     });
   } catch (error) {
     if (error) {

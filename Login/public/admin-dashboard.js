@@ -1,7 +1,25 @@
-// --- 1. SECURITY & INITIALIZATION ---
-(function() {
-    // Basic role check to prevent unauthorized access
-    if (localStorage.getItem('role')?.toLowerCase() !== 'admin') {
+// --- 1. SERVER-SIDE SECURITY CHECK ---
+(async function() {
+    try {
+        const res = await fetch("http://localhost:3000/auth/verify", { credentials: 'include' });
+        const data = await res.json();
+
+        // 1. Check Authorization
+        if (!res.ok || data.user.roleRef.name.toLowerCase() !== 'admin') {
+            window.location.href = "login.html";
+            return;
+        }
+
+        // 2. SUCCESS: Set the Admin Name on the UI from the API data
+        const adminNameElement = document.getElementById('admin-name');
+        if (adminNameElement) {
+            adminNameElement.innerText = data.user.username; 
+        }
+        
+        console.log(`Access Granted: Welcome ${data.user.username}`);
+
+    } catch (err) {
+        console.error("Auth Check Failed:", err);
         window.location.href = "login.html";
     }
 })();
@@ -687,6 +705,10 @@ async function renderStockWatch() {
     } catch (err) {
         workspace.innerHTML = `<p>Error loading stock alerts.</p>`;
     }
+}
+function goToStore() {
+    // Redirects the admin back to the main customer website
+    window.location.href = "http://localhost:5500/Login/public/WebPage.html";
 }
 // Set admin name in sidebar
 document.getElementById('admin-name').innerText = localStorage.getItem('userName') || 'Admin';
