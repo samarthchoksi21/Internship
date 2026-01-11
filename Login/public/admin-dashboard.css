@@ -515,3 +515,47 @@ body {
     width: 100%; /* Ensure all inputs fill their container */
     box-sizing: border-box;
 }
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.7); /* Deep slate with transparency */
+    backdrop-filter: blur(8px); /* Modern frosted glass effect */
+    display: none; /* Hidden by default */
+    align-items: center; justify-content: center;
+    z-index: 9999;
+}
+
+.modal-card {
+    background: #ffffff;
+    width: 90%; max-width: 400px;
+    padding: 30px; border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.modal-icon {
+    width: 60px; height: 60px;
+    background: #fff1f2; color: #e11d48;
+    border-radius: 50%; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 24px; margin: 0 auto 20px;
+}
+
+.modal-card h3 { color: #0f172a; margin-bottom: 10px; font-weight: 800; }
+.modal-card p { color: #64748b; font-size: 14px; margin-bottom: 25px; }
+
+.modal-actions { display: flex; gap: 12px; }
+
+.modal-btn {
+    flex: 1; padding: 12px; border-radius: 10px;
+    border: none; cursor: pointer; font-weight: 600; font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-cancel { background: #f1f5f9; color: #64748b; }
+.btn-cancel:hover { background: #e2e8f0; }
+
+.btn-confirm { background: #0f172a; color: white; }
+.btn-confirm:hover { background: #1e293b; transform: translateY(-2px); }

@@ -74,7 +74,7 @@ function renderHome() {
                         <div class="icon-box green"><i class="fa-solid fa-plus"></i></div>
                         <div class="card-text"><h4>Add Product</h4><p>Create New Listing</p></div>
                     </div>
-                    <div class="action-card" onclick="alert('Coming Soon: Stock Alerts')">
+                    <div class="action-card" onclick="renderStockWatch()">
                         <div class="icon-box orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
                         <div class="card-text"><h4>Stock Watch</h4><p>Low Inventory Tracking</p></div>
                     </div>
@@ -562,33 +562,132 @@ async function deleteProduct(productId, productName) {
     }
 }
 // --- 6. UTILITIES ---
-async function logout() {
-    // 1. Optional confirmation
-    if (!confirm("Are you sure you want to log out of the Command Center?")) return;
+// --- CUSTOM MODAL LOGIC ---
+function logout() {
+    const modal = document.getElementById('custom-modal-overlay');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
 
-    try {
-        const res = await fetch('http://localhost:3000/logout', {
-            method: 'GET', // Matches your router.get
-            credentials: 'include' // Crucial to send the cookie so the server can clear it
-        });
+    // Show Modal
+    modal.style.display = 'flex';
+    
+    // Set up the click handler for the confirm button
+    confirmBtn.onclick = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/logout', {
+                method: 'GET',
+                credentials: 'include'
+            });
 
-        const data = await res.json();
-
-        if (res.ok) {
-            // 2. Clear any local state if you have it
-            console.log(data.message);
-            
-            // 3. Redirect to your login page
-            window.location.href = 'http://localhost:5500/Login/public/login.html'; 
-        } else {
-            alert("Logout failed. Please try again.");
+            if (res.ok) {
+                window.location.href = 'http://localhost:5500/Login/public/login.html';
+            }
+        } catch (error) {
+            alert("Logout failed connection.");
         }
-    } catch (error) {
-        console.error("Logout Error:", error);
-        alert("Connection error.");
-    }
+    };
 }
 
+function closeModal() {
+    document.getElementById('custom-modal-overlay').style.display = 'none';
+}
+
+// Close modal if user clicks outside the card
+window.onclick = function(event) {
+    const modal = document.getElementById('custom-modal-overlay');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+async function renderStockWatch() {
+    viewTitle.innerText = "Stock Watch";
+    viewSubtitle.innerText = "Items requiring immediate restock attention.";
+    headerActions.innerHTML = `<button class="btn-primary-action" onclick="fetchProducts()"><i class="fa-solid fa-rotate"></i> Refresh Inventory</button>`;
+    
+    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+
+    try {
+        // We reuse your existing Product List API
+        const res = await fetch('http://localhost:3000/admin/product?limit=100', { credentials: 'include' });
+        const data = await res.json();
+        
+        // 1. FILTER: Find variants where stock is less than 10
+        const lowStockItems = [];
+        data.products.forEach(product => {
+            product.variants.forEach(variant => {
+                if (variant.stock <= 10) {
+                    lowStockItems.push({
+                        productId: product._id,
+                        name: product.name,
+                        variantLabel: variant.label,
+                        sku: variant.sku,
+                        stock: variant.stock,
+                        image: variant.image
+                    });
+                }
+            });
+        });
+
+        if (lowStockItems.length === 0) {
+            workspace.innerHTML = `
+                <div class="form-container" style="text-align:center; padding:40px;">
+                    <i class="fa-solid fa-check-circle" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
+                    <h3>All Stocked Up!</h3>
+                    <p>No variants are currently below the low-stock threshold.</p>
+                </div>`;
+            return;
+        }
+
+        // 2. RENDER: Show them in an urgent list
+        workspace.innerHTML = `
+            <div class="form-container animate-in">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product / Variant</th>
+                            <th>SKU</th>
+                            <th>Current Stock</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${lowStockItems.map(item => `
+                            <tr>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <img src="${item.image || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:5px; object-fit:cover;">
+                                        <div>
+                                            <div style="font-weight:700;">${item.name}</div>
+                                            <small style="color:var(--text-muted)">${item.variantLabel}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>${item.sku}</code></td>
+                                <td>
+                                    <span style="font-weight:800; color:${item.stock === 0 ? '#e11d48' : '#f59e0b'}">
+                                        ${item.stock} units
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="role-badge" style="background:${item.stock === 0 ? '#ffe4e6' : '#fef3c7'}; color:${item.stock === 0 ? '#e11d48' : '#b45309'}">
+                                        ${item.stock === 0 ? 'Out of Stock' : 'Low Stock'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-edit" onclick="renderEditProduct('${item.productId}')">
+                                        <i class="fa-solid fa-truck-ramp-box"></i> Restock
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } catch (err) {
+        workspace.innerHTML = `<p>Error loading stock alerts.</p>`;
+    }
+}
 // Set admin name in sidebar
 document.getElementById('admin-name').innerText = localStorage.getItem('userName') || 'Admin';
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="admin-layout">
         <aside class="sidebar">
@@ -15,16 +17,26 @@
                 <div class="logo">IRON<span>GEAR</span></div>
                 <div class="admin-profile">
                     <div class="avatar">A</div>
-                    <div class="admin-info"><p id="admin-name">Admin Account</p><span>Verified Admin</span></div>
+                    <div class="admin-info">
+                        <p id="admin-name">Admin Account</p><span>Verified Admin</span>
+                    </div>
                 </div>
             </div>
             <nav class="side-nav">
-                <button class="nav-link active" id="nav-home" onclick="renderHome()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
-                <button class="nav-link" id="nav-users" onclick="fetchAllUsers()"><i class="fa-solid fa-users"></i> User Manager</button>
-                <button class="nav-link" id="nav-cats" onclick="renderCategoryList()"><i class="fa-solid fa-layer-group"></i> Categories</button>
-                <button class="nav-link" id="nav-products" onclick="fetchProducts()"><i class="fa-solid fa-box"></i> Product Manager</button>
+                <button class="nav-link active" id="nav-home" onclick="renderHome()"><i class="fa-solid fa-house"></i>
+                    Home Dashboard</button>
+                <button class="nav-link" id="nav-users" onclick="fetchAllUsers()"><i class="fa-solid fa-users"></i> User
+                    Manager</button>
+                <button class="nav-link" id="nav-cats" onclick="renderCategoryList()"><i
+                        class="fa-solid fa-layer-group"></i> Categories</button>
+                <button class="nav-link" id="nav-products" onclick="fetchProducts()"><i class="fa-solid fa-box"></i>
+                    Product Manager</button>
                 <div class="nav-divider"></div>
-                <button class="nav-link logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+                <button class="nav-link" id="nav-stock" onclick="renderStockWatch()">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Stock Watch
+                </button>
+                <button class="nav-link logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i>
+                    Logout</button>
             </nav>
         </aside>
 
@@ -39,6 +51,18 @@
             <div id="dynamic-content" class="content-area"></div>
         </main>
     </div>
+    <div id="custom-modal-overlay" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
+            <h3>Terminate Session?</h3>
+            <p>Are you sure you want to log out of the IRON-GEAR Command Center?</p>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="closeModal()">Stay</button>
+                <button class="modal-btn btn-confirm" id="modal-confirm-btn">Logout</button>
+            </div>
+        </div>
+    </div>
     <script src="admin-dashboard.js"></script>
 </body>
+
 </html>
