@@ -2,6 +2,7 @@ const { USER } = require("../Models/user");
 const { ROLE } = require("../Models/roles");
 const { CATEGORY } = require("../Models/category");
 const { PRODUCT } = require("../Models/products");
+const {COUPON} = require('../Models/coupon')
 const mongoose = require('mongoose')
 const bcrypt = require("bcrypt");
 async function ViewAllUser(req, res) {
@@ -459,6 +460,62 @@ async function DeleteProduct(req,res){
     Product
   })
 }
+
+async function createCoupon(req, res) {
+  try {
+    const {
+      code,
+      type,
+      value,
+      minOrderValue = 0,
+      maxDiscount,
+      expiryDate,
+      usageLimit = 0
+    } = req.body;
+
+    if (!code || !type || !value || !expiryDate) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    if (!["percentage", "flat"].includes(type)) {
+      return res.status(400).json({ message: "Invalid coupon type" });
+    }
+
+    if (type === "percentage" && value > 100) {
+      return res.status(400).json({ message: "Percentage cannot exceed 100" });
+    }
+
+    if (new Date(expiryDate) <= new Date()) {
+      return res.status(400).json({ message: "Expiry date must be in future" });
+    }
+
+    const existing = await COUPON.findOne({ code: code.toUpperCase() });
+    if (existing) {
+      return res.status(409).json({ message: "Coupon code already exists" });
+    }
+
+    const coupon = await COUPON.create({
+      code: code.toUpperCase(),
+      type,
+      value,
+      minOrderValue,
+      maxDiscount,
+      expiryDate,
+      usageLimit
+    });
+
+    return res.status(201).json({
+      message: "Coupon created successfully",
+      coupon
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to create coupon" });
+  }
+}
+
+
 module.exports = {
   ViewAllUser,
   GetUserById,
@@ -472,5 +529,6 @@ module.exports = {
   CreateProduct,
   GetAllProducts,
   EditProduct,
-  DeleteProduct
+  DeleteProduct,
+  createCoupon
 };

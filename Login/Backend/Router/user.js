@@ -11,6 +11,8 @@ const {
   HandleForgotPasswordEmailSendOtp,
   GetAllProductsPublic,
   GetMyDetail,
+  createOrder,
+  applyCoupon,
   Logout
 } = require("../controller/user");
 router.post("/signup", HandleSignupPage);
@@ -22,6 +24,8 @@ router.post('/forgotpasswordemail',HandleForgotPasswordEmailSendOtp);
 router.post("/re-send", HandleResendOtp);
 router.get('/allproduct',VerifyUser,GetAllProductsPublic)
 router.get('/me',VerifyUser,GetMyDetail)
+router.post('/order',VerifyUser,createOrder)
+router.post('/applycoupon',VerifyUser,applyCoupon)
 router.get('/logout',VerifyUser,Logout)
 router.get("/auth/verify", VerifyUser, (req, res) => {
   res.status(200).json({

@@ -3,6 +3,8 @@ const { OTP } = require("../Models/otp");
 const { PENDINGUSER } = require("../Models/pendinguser");
 const { ROLE } = require("../Models/roles");
 const { PRODUCT } = require("../Models/products");
+const {ORDER} = require('../Models/order')
+const {COUPON} = require('../Models/coupon')
 const { sendOtp } = require("../utils/mailer");
 const { GenerateTokens, VerifyUser } = require("../service/auth");
 const bcrypt = require("bcrypt");
@@ -353,6 +355,164 @@ async function GetMyDetail(req, res) {
     },
   });
 }
+
+async function createOrder(req, res) {
+  try {
+    const userId = req.user._id;
+    const { items } = req.body;
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    let orderItems = [];
+    let subtotal = 0;
+
+    for (const item of items) {
+      const product = await PRODUCT.findById(item.productId);
+
+      if (!product || !product.isActive) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      const variant = product.variants.find(
+        v => v.label === item.variantLabel && v.isActive
+      );
+
+      if (!variant) {
+        return res.status(400).json({ message: "Variant not available" });
+      }
+
+      if (variant.stock < item.quantity) {
+        return res.status(400).json({
+          message: `Only ${variant.stock} left for ${product.name} (${variant.label})`
+        });
+      }
+
+      const price = variant.price * item.quantity;
+      subtotal += price;
+
+      orderItems.push({
+        productId: product._id,
+        variantId: variant._id,
+        sku: variant.sku,
+        name: product.name,
+        variantLabel: variant.label,
+        priceAtPurchase: variant.price,
+        quantity: item.quantity
+      });
+    }
+    const order = await ORDER.create({
+      user: userId,
+      items: orderItems,
+      subtotal,
+      finalAmount: subtotal 
+    });
+
+    return res.status(201).json({
+      message: "Order created",
+      orderId: order._id,
+      amount: order.finalAmount
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Order creation failed" });
+  }
+}
+
+async function applyCoupon(req, res) {
+  try {
+    const userId = req.user._id;
+    const { orderId, couponCode } = req.body;
+
+    if (!orderId || !couponCode) {
+      return res.status(400).json({ message: "OrderId and coupon code required" });
+    }
+
+    const order = await ORDER.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Unauthorized order access" });
+    }
+
+    if (order.paymentStatus !== "unpaid") {
+      return res.status(400).json({ message: "Cannot apply coupon after payment" });
+    }
+
+    const coupon = await COUPON.findOne({
+      code: couponCode.toUpperCase(),
+      isActive: true
+    });
+
+    if (!coupon) {
+      return res.status(404).json({ message: "Invalid coupon" });
+    }
+
+    if (coupon.expiryDate < new Date()) {
+      return res.status(400).json({ message: "Coupon expired" });
+    }
+
+    if (
+      coupon.usageLimit > 0 &&
+      coupon.usedBy.length >= coupon.usageLimit
+    ) {
+      return res.status(400).json({ message: "Coupon usage limit reached" });
+    }
+
+    if (coupon.usedBy.includes(userId)) {
+      return res.status(400).json({ message: "Coupon already used by you" });
+    }
+
+    if (order.subtotal < coupon.minOrderValue) {
+      return res.status(400).json({
+        message: `Minimum order value is ₹${coupon.minOrderValue}`
+      });
+    }
+
+    // --- Discount calculation ---
+    let discount = 0;
+
+    if (coupon.type === "percentage") {
+      discount = (order.subtotal * coupon.value) / 100;
+
+      if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+        discount = coupon.maxDiscount;
+      }
+    } else {
+      discount = coupon.value;
+    }
+
+    if (discount > order.subtotal) {
+      discount = order.subtotal;
+    }
+
+    order.discount = discount;
+    order.finalAmount = order.subtotal - discount;
+    order.couponCode = coupon.code;
+
+    await order.save();
+
+    return res.status(200).json({
+      message: "Coupon applied successfully",
+      discount,
+      finalAmount: order.finalAmount
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to apply coupon" });
+  }
+}
+
+
+
+
+
 async function Logout(req, res) {
   res.clearCookie("token", {
     httpOnly: true,
@@ -372,5 +532,7 @@ module.exports = {
   HandleForgotPasswordEmailSendOtp,
   GetAllProductsPublic,
   GetMyDetail,
-  Logout
+  Logout,
+  createOrder,
+  applyCoupon
 };
