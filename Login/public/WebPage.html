@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IRON-GEAR | Premium Gym Store</title>
     <link rel="stylesheet" href="webpage.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
     <nav class="navbar">
@@ -23,7 +26,8 @@
     <section class="search-area">
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="productSearch" placeholder="Search supplements, gear, dumbells..." onkeyup="searchProducts()">
+            <input type="text" id="productSearch" placeholder="Search supplements, gear, dumbells..."
+                onkeyup="searchProducts()">
         </div>
         <div class="category-pills" id="category-list">
             <button class="cat-pill active" onclick="filterCategory('all')">All Gear</button>
@@ -36,7 +40,7 @@
 
     <main class="container">
         <div id="product-grid" class="product-grid">
-            </div>
+        </div>
     </main>
 
     <div id="cart-popup" class="cart-popup-card">
@@ -59,17 +63,33 @@
             <h3>Your Training Bag</h3>
             <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="toggleCart()"></i>
         </div>
+
         <div id="cart-items" class="cart-items-list"></div>
+
+        <div class="coupon-wrapper" style="padding: 15px; border-top: 1px solid #eee;">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="coupon-code" placeholder="Enter Coupon"
+                    style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                <button id="apply-coupon-btn" onclick="handleCoupon()"
+                    style="background: #222; color: #fff; border: none; padding: 0 15px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                    APPLY
+                </button>
+            </div>
+            <p id="coupon-status" style="font-size: 12px; margin-top: 8px; display: none;"></p>
+        </div>
+
         <div class="cart-footer">
             <div class="total-row">
                 <span>Total Amount:</span>
                 <span id="cart-total" style="font-weight: 800; color: var(--primary);">₹0</span>
             </div>
-            <button class="btn-checkout">Proceed to Checkout</button>
+            <button class="btn-checkout" id="checkout-main-btn" onclick="initiateCheckout()">Proceed to
+                Checkout</button>
         </div>
     </div>
     <div id="overlay" class="overlay" onclick="toggleCart()"></div>
 
     <script src="WebPage.js"></script>
 </body>
+
 </html>

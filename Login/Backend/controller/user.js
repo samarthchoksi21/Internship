@@ -5,6 +5,8 @@ const { ROLE } = require("../Models/roles");
 const { PRODUCT } = require("../Models/products");
 const {ORDER} = require('../Models/order')
 const {COUPON} = require('../Models/coupon')
+const {razorpay} = require('../config/razorpay')
+const crypto = require('crypto')
 const { sendOtp } = require("../utils/mailer");
 const { GenerateTokens, VerifyUser } = require("../service/auth");
 const bcrypt = require("bcrypt");
@@ -508,8 +510,108 @@ async function applyCoupon(req, res) {
     return res.status(500).json({ message: "Failed to apply coupon" });
   }
 }
+async function createPaymentOrder(req, res) {
+  try {
+    const userId = req.user._id;
+    const { orderId } = req.body;
 
+    const order = await ORDER.findById(orderId);
 
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (order.paymentStatus !== "unpaid") {
+      return res.status(400).json({ message: "Order already paid" });
+    }
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: order.finalAmount * 100, // paisa
+      currency: "INR",
+      receipt: order._id.toString()
+    });
+
+    order.razorpayOrderId = razorpayOrder.id;
+    await order.save();
+
+    return res.status(200).json({
+      key: process.env.RAZORPAY_KEY_ID,
+      razorpayOrderId: razorpayOrder.id,
+      amount: order.finalAmount,
+      currency: "INR"
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Payment order creation failed" });
+  }
+}
+
+async function verifyPayment(req, res) {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    } = req.body;
+
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ message: "Invalid payment signature" });
+    }
+
+    const order = await ORDER.findOne({ razorpayOrderId: razorpay_order_id });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.paymentStatus === "paid") {
+      return res.status(200).json({ message: "Already verified" });
+    }
+
+   
+    order.paymentStatus = "paid";
+    order.status = "placed";
+    order.razorpayPaymentId = razorpay_payment_id;
+
+   
+    for (const item of order.items) {
+      await PRODUCT.updateOne(
+        { 
+          _id: item.productId, 
+          "variants._id": item.variantId 
+        },
+        { 
+          $inc: { "variants.$.stock": -item.quantity } 
+        }
+      );
+    }
+    if (order.couponCode) {
+      await COUPON.updateOne(
+        { code: order.couponCode },
+        { $push: { usedBy: order.user } }
+      );
+    }
+    await order.save();
+
+    return res.status(200).json({
+      message: "Payment verified & order placed"
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Payment verification failed" });
+  }
+}
 
 
 
@@ -534,5 +636,7 @@ module.exports = {
   GetMyDetail,
   Logout,
   createOrder,
-  applyCoupon
+  applyCoupon,
+  verifyPayment,
+  createPaymentOrder
 };

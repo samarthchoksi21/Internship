@@ -13,6 +13,8 @@ const {
   GetMyDetail,
   createOrder,
   applyCoupon,
+  createPaymentOrder,
+  verifyPayment,
   Logout
 } = require("../controller/user");
 router.post("/signup", HandleSignupPage);
@@ -26,6 +28,8 @@ router.get('/allproduct',VerifyUser,GetAllProductsPublic)
 router.get('/me',VerifyUser,GetMyDetail)
 router.post('/order',VerifyUser,createOrder)
 router.post('/applycoupon',VerifyUser,applyCoupon)
+router.post('/payment',VerifyUser,createPaymentOrder)
+router.post('/verifypayment',VerifyUser,verifyPayment)
 router.get('/logout',VerifyUser,Logout)
 router.get("/auth/verify", VerifyUser, (req, res) => {
   res.status(200).json({
