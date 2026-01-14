@@ -62,7 +62,7 @@ form.addEventListener("submit", async (e) => {
     localStorage.removeItem("pendingEmail");
 
     window.location.href =
-      "http://127.0.0.1:5500/Login/public/ChangePassword.html";
+      "http://localhost:5500/Login/public/ChangePasswordOtp.html";
 
   } catch (err) {
     errorBox.textContent = err.message || "Server error. Try again.";
