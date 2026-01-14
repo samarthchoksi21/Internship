@@ -2,6 +2,7 @@ const { USER } = require("../Models/user");
 const { ROLE } = require("../Models/roles");
 const { CATEGORY } = require("../Models/category");
 const { PRODUCT } = require("../Models/products");
+const {ORDER} = require('../Models/order')
 const {COUPON} = require('../Models/coupon')
 const mongoose = require('mongoose')
 const bcrypt = require("bcrypt");
@@ -514,6 +515,106 @@ async function createCoupon(req, res) {
     return res.status(500).json({ message: "Failed to create coupon" });
   }
 }
+async function getAllOrders(req, res) {
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const skip = (page - 1) * limit;
+
+    const { status, paymentStatus } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+    if (paymentStatus) filter.paymentStatus = paymentStatus;
+
+    const [orders, totalOrders] = await Promise.all([
+      ORDER.find(filter)
+        .populate("user", "username email") 
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      ORDER.countDocuments(filter)
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      page,
+      limit,
+      totalOrders,
+      totalPages: Math.ceil(totalOrders / limit),
+      orders
+    });
+  } catch (error) {
+    console.error("GET ALL ORDERS ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch orders"
+    });
+  }
+}
+async function getAllCoupons(req, res) {
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const skip = (page - 1) * limit;
+
+    const { isActive, type, expired } = req.query;
+
+    const filter = {};
+
+    if (isActive !== undefined) {
+      filter.isActive = isActive === "true";
+    }
+
+    if (type) {
+      filter.type = type;
+    }
+
+    if (expired === "true") {
+      filter.expiryDate = { $lt: new Date() };
+    }
+
+    if (expired === "false") {
+      filter.expiryDate = { $gte: new Date() };
+    }
+
+    const [coupons, totalCoupons] = await Promise.all([
+      COUPON.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select(
+          "code type value minOrderValue maxDiscount usageLimit usedBy isActive expiryDate createdAt"
+        )
+        .lean(),
+
+      COUPON.countDocuments(filter)
+    ]);
+
+    // transform usedBy → usedCount
+    const formattedCoupons = coupons.map(coupon => ({
+      ...coupon,
+      usedCount: coupon.usedBy.length,
+      usedBy: undefined
+    }));
+
+    return res.status(200).json({
+      success: true,
+      page,
+      limit,
+      totalCoupons,
+      totalPages: Math.ceil(totalCoupons / limit),
+      coupons: formattedCoupons
+    });
+  } catch (error) {
+    console.error("GET ALL COUPONS ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch coupons"
+    });
+  }
+}
 
 
 module.exports = {
@@ -530,5 +631,7 @@ module.exports = {
   GetAllProducts,
   EditProduct,
   DeleteProduct,
-  createCoupon
+  createCoupon,
+  getAllOrders,
+  getAllCoupons
 };

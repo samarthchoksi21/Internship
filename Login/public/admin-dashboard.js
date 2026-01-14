@@ -1,48 +1,51 @@
 // --- 1. SERVER-SIDE SECURITY CHECK ---
-(async function() {
-    try {
-        const res = await fetch("http://localhost:3000/auth/verify", { credentials: 'include' });
-        const data = await res.json();
+(async function () {
+  try {
+    const res = await fetch("http://localhost:3000/auth/verify", {
+      credentials: "include",
+    });
+    const data = await res.json();
 
-        // 1. Check Authorization
-        if (!res.ok || data.user.roleRef.name.toLowerCase() !== 'admin') {
-            window.location.href = "login.html";
-            return;
-        }
-
-        // 2. SUCCESS: Set the Admin Name on the UI from the API data
-        const adminNameElement = document.getElementById('admin-name');
-        if (adminNameElement) {
-            adminNameElement.innerText = data.user.username; 
-        }
-        
-        console.log(`Access Granted: Welcome ${data.user.username}`);
-
-    } catch (err) {
-        console.error("Auth Check Failed:", err);
-        window.location.href = "login.html";
+    // 1. Check Authorization
+    if (!res.ok || data.user.roleRef.name.toLowerCase() !== "admin") {
+      window.location.href = "login.html";
+      return;
     }
+
+    // 2. SUCCESS: Set the Admin Name on the UI from the API data
+    const adminNameElement = document.getElementById("admin-name");
+    if (adminNameElement) {
+      adminNameElement.innerText = data.user.username;
+    }
+
+    console.log(`Access Granted: Welcome ${data.user.username}`);
+  } catch (err) {
+    console.error("Auth Check Failed:", err);
+    window.location.href = "login.html";
+  }
 })();
 
-const workspace = document.getElementById('dynamic-content');
-const viewTitle = document.getElementById('view-title');
-const viewSubtitle = document.getElementById('view-subtitle');
-const headerActions = document.getElementById('header-actions');
+const workspace = document.getElementById("dynamic-content");
+const viewTitle = document.getElementById("view-title");
+const viewSubtitle = document.getElementById("view-subtitle");
+const headerActions = document.getElementById("header-actions");
 
 // Helper to handle sidebar active states
 function setActiveNav(id) {
-    document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(id);
-    if (activeBtn) activeBtn.classList.add('active');
+  document
+    .querySelectorAll(".nav-link")
+    .forEach((btn) => btn.classList.remove("active"));
+  const activeBtn = document.getElementById(id);
+  if (activeBtn) activeBtn.classList.add("active");
 }
 
 // --- 2. MAIN DASHBOARD (Unified Hub) ---
 function renderHome() {
-    setActiveNav('nav-home');
+    setActiveNav("nav-home");
     viewTitle.innerText = "Command Center";
     viewSubtitle.innerText = "Unified control for Iron-Gear users, shop inventory, and products.";
-    headerActions.innerHTML = ''; 
-    
+    headerActions.innerHTML = "";
+
     workspace.innerHTML = `
         <div class="animate-in">
             <section class="dashboard-section">
@@ -59,6 +62,24 @@ function renderHome() {
                     <div class="action-card" onclick="renderSearchPage()">
                         <div class="icon-box purple"><i class="fa-solid fa-magnifying-glass"></i></div>
                         <div class="card-text"><h4>ID Search</h4><p>Database Identity Check</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-section">
+                <div class="section-header"><i class="fa-solid fa-chart-line"></i><h3>Sales & Revenue</h3></div>
+                <div class="command-grid">
+                    <div class="action-card" onclick="renderOrderManager()">
+                        <div class="icon-box green"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                        <div class="card-text"><h4>Order Manager</h4><p>Shipments & Payments</p></div>
+                    </div>
+                    <div class="action-card" onclick="renderQuickSalesReport()">
+                        <div class="icon-box purple"><i class="fa-solid fa-chart-pie"></i></div>
+                        <div class="card-text"><h4>Sales Reports</h4><p>Revenue & Growth Stats</p></div>
+                    </div>
+                    <div class="action-card" onclick="renderStockWatch()">
+                        <div class="icon-box orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="card-text"><h4>Stock Watch</h4><p>Low Inventory Tracking</p></div>
                     </div>
                 </div>
             </section>
@@ -98,21 +119,40 @@ function renderHome() {
                     </div>
                 </div>
             </section>
+
+            <section class="dashboard-section">
+                <div class="section-header"><i class="fa-solid fa-tags"></i><h3>Marketing & Discounts</h3></div>
+                <div class="command-grid">
+                    <div class="action-card" onclick="renderCouponManager()">
+                        <div class="icon-box purple"><i class="fa-solid fa-ticket"></i></div>
+                        <div class="card-text"><h4>Coupon Codes</h4><p>Manage Discounts</p></div>
+                    </div>
+                    <div class="action-card" onclick="renderAddCouponForm()">
+                        <div class="icon-box green"><i class="fa-solid fa-plus-circle"></i></div>
+                        <div class="card-text"><h4>Create Coupon</h4><p>New Promo Campaign</p></div>
+                    </div>
+                </div>
+            </section>
+            
         </div>
     `;
 }
 async function fetchProducts(page = 1) {
-    // Note: You may want to add a nav-products button to your HTML sidebar later
-    viewTitle.innerText = "Master Inventory";
-    viewSubtitle.innerText = "Manage products, variants, and real-time stock levels.";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    
-    try {
-        const res = await fetch(`http://localhost:3000/admin/product?page=${page}&limit=10`, { credentials: 'include' });
-        const data = await res.json();
-        
-        if (res.ok) {
-            workspace.innerHTML = `
+  // Note: You may want to add a nav-products button to your HTML sidebar later
+  viewTitle.innerText = "Master Inventory";
+  viewSubtitle.innerText =
+    "Manage products, variants, and real-time stock levels.";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+
+  try {
+    const res = await fetch(
+      `http://localhost:3000/admin/product?page=${page}&limit=10`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+
+    if (res.ok) {
+      workspace.innerHTML = `
                 <div class="table-wrapper animate-in">
                     <table class="admin-table">
                         <thead>
@@ -124,81 +164,132 @@ async function fetchProducts(page = 1) {
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.products.map(p => `
+                            ${data.products
+                              .map(
+                                (p) => `
                                 <tr>
-                                    <td><strong>${p.name}</strong><br><small>${p.slug}</small></td>
-                                    <td><span class="role-badge" style="background:#e0f2fe; color:#0369a1;">${p.categoryRef?.name || 'N/A'}</span></td>
+                                    <td><strong>${p.name}</strong><br><small>${
+                                  p.slug
+                                }</small></td>
+                                    <td><span class="role-badge" style="background:#e0f2fe; color:#0369a1;">${
+                                      p.categoryRef?.name || "N/A"
+                                    }</span></td>
                                     <td>
                                         <div style="display:flex; flex-direction:column; gap:4px;">
-                                            ${p.variants.map(v => `
+                                            ${p.variants
+                                              .map(
+                                                (v) => `
                                                 <small>• ${v.label}: <strong>$${v.price}</strong> (${v.stock} pcs)</small>
-                                            `).join('')}
+                                            `
+                                              )
+                                              .join("")}
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn-edit" onclick="renderEditProduct('${p._id}')"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn-delete" onclick="deleteProduct('${p._id}', '${p.name}')"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="btn-edit" onclick="renderEditProduct('${
+                                          p._id
+                                        }')"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-delete" onclick="deleteProduct('${
+                                          p._id
+                                        }', '${
+                                  p.name
+                                }')"><i class="fa-solid fa-trash"></i></button>
                                     </td>
-                                </tr>`).join('')}
+                                </tr>`
+                              )
+                              .join("")}
                         </tbody>
                     </table>
                 </div>
                 <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
-                    ${Array.from({length: data.pagination.totalPages}, (_, i) => i + 1).map(pageNum => `
-                        <button class="btn-back" style="background:${pageNum === page ? 'var(--primary)' : 'var(--navy)'}" 
+                    ${Array.from(
+                      { length: data.pagination.totalPages },
+                      (_, i) => i + 1
+                    )
+                      .map(
+                        (pageNum) => `
+                        <button class="btn-back" style="background:${
+                          pageNum === page ? "var(--primary)" : "var(--navy)"
+                        }" 
                                 onclick="fetchProducts(${pageNum})">${pageNum}</button>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                 </div>
             `;
-        }
-    } catch (e) { workspace.innerHTML = "<p>Connection Error to Product API.</p>"; }
+    }
+  } catch (e) {
+    workspace.innerHTML = "<p>Connection Error to Product API.</p>";
+  }
 }
 
 // --- 3. USER MANAGEMENT LOGIC ---
 async function fetchAllUsers() {
-    setActiveNav('nav-users');
-    viewTitle.innerText = "User Directory";
-    viewSubtitle.innerText = "Manage access and permissions for all registered accounts.";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    
-    try {
-        const res = await fetch('http://localhost:3000/admin/allusers', { credentials: 'include' });
-        const data = await res.json();
-        if (res.ok) {
-            workspace.innerHTML = `
+  setActiveNav("nav-users");
+  viewTitle.innerText = "User Directory";
+  viewSubtitle.innerText =
+    "Manage access and permissions for all registered accounts.";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+
+  try {
+    const res = await fetch("http://localhost:3000/admin/allusers", {
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (res.ok) {
+      workspace.innerHTML = `
                 <div class="table-wrapper animate-in">
                     <table class="admin-table">
                         <thead><tr><th>User Info</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
                         <tbody>
-                            ${data.users.map(u => `
+                            ${data.users
+                              .map(
+                                (u) => `
                                 <tr>
                                     <td><strong>${u.username}</strong></td>
                                     <td>${u.email}</td>
-                                    <td><span class="role-badge">${u.roleRef?.name || 'User'}</span></td>
+                                    <td><span class="role-badge">${
+                                      u.roleRef?.name || "User"
+                                    }</span></td>
                                     <td>
-                                        <button class="btn-edit" onclick="renderUpdatePage('${u._id}', '${u.username}', '${u.email}')"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn-delete" onclick="deleteUser('${u._id}', '${u.username}')"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="btn-edit" onclick="renderUpdatePage('${
+                                          u._id
+                                        }', '${u.username}', '${
+                                  u.email
+                                }')"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-delete" onclick="deleteUser('${
+                                          u._id
+                                        }', '${
+                                  u.username
+                                }')"><i class="fa-solid fa-trash"></i></button>
                                     </td>
-                                </tr>`).join('')}
+                                </tr>`
+                              )
+                              .join("")}
                         </tbody>
                     </table>
                 </div>`;
-        }
-    } catch (e) { workspace.innerHTML = "<p>Connection Error.</p>"; }
+    }
+  } catch (e) {
+    workspace.innerHTML = "<p>Connection Error.</p>";
+  }
 }
 
 async function deleteUser(id, name) {
-    if (!confirm(`Permanently delete user ${name}?`)) return;
-    const res = await fetch(`http://localhost:3000/admin/user/${id}`, { method: 'DELETE', credentials: 'include' });
-    const data = await res.json();
-    alert(data.message);
-    if (res.ok) fetchAllUsers();
+  if (!confirm(`Permanently delete user ${name}?`)) return;
+  const res = await fetch(`http://localhost:3000/admin/user/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const data = await res.json();
+  alert(data.message);
+  if (res.ok) fetchAllUsers();
 }
 
 function renderUpdatePage(id, name, email) {
-    viewTitle.innerText = `Edit Profile`;
-    headerActions.innerHTML = `<button class="btn-back" onclick="fetchAllUsers()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    workspace.innerHTML = `
+  viewTitle.innerText = `Edit Profile`;
+  headerActions.innerHTML = `<button class="btn-back" onclick="fetchAllUsers()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+  workspace.innerHTML = `
         <div class="update-grid animate-in">
             <div class="form-container">
                 <h3>Credentials</h3>
@@ -222,73 +313,101 @@ function renderUpdatePage(id, name, email) {
                 <button onclick="changeRole('${id}')" class="btn-primary-action" style="background:var(--navy)">Update Permissions</button>
             </div>
         </div>`;
-    
-    document.getElementById('updateForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const res = await fetch(`http://localhost:3000/admin/updateuser/${id}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            credentials: 'include',
-            body: JSON.stringify({ username: upN.value, email: upE.value, password: upP.value })
-        });
-        const d = await res.json(); alert(d.message);
-    };
+
+  document.getElementById("updateForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch(`http://localhost:3000/admin/updateuser/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        username: upN.value,
+        email: upE.value,
+        password: upP.value,
+      }),
+    });
+    const d = await res.json();
+    alert(d.message);
+  };
 }
 
 async function changeRole(id) {
-    const res = await fetch(`http://localhost:3000/admin/changerole/${id}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify({ roleName: document.getElementById('roleSelect').value })
-    });
-    const data = await res.json(); alert(data.message);
-    if(res.ok) fetchAllUsers();
+  const res = await fetch(`http://localhost:3000/admin/changerole/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      roleName: document.getElementById("roleSelect").value,
+    }),
+  });
+  const data = await res.json();
+  alert(data.message);
+  if (res.ok) fetchAllUsers();
 }
 
 // --- 4. CATEGORY MANAGEMENT LOGIC ---
 async function renderCategoryList() {
-    setActiveNav('nav-cats');
-    viewTitle.innerText = "Category Directory";
-    viewSubtitle.innerText = "View all active departments and their hierarchy.";
-    headerActions.innerHTML = `
+  setActiveNav("nav-cats");
+  viewTitle.innerText = "Category Directory";
+  viewSubtitle.innerText = "View all active departments and their hierarchy.";
+  headerActions.innerHTML = `
         <button class="btn-primary-action" onclick="renderAddCategoryForm()" style="width:auto; padding: 10px 20px">+ Add New</button> 
         <button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>
     `;
-    
-    try {
-        const res = await fetch('http://localhost:3000/admin/getAllcategories', { credentials: 'include' });
-        const data = await res.json();
-        workspace.innerHTML = `
+
+  try {
+    const res = await fetch("http://localhost:3000/admin/getAllcategories", {
+      credentials: "include",
+    });
+    const data = await res.json();
+    workspace.innerHTML = `
             <div class="table-wrapper animate-in">
                 <table class="admin-table">
                     <thead><tr><th>Dept Name / Slug</th><th>Parent Category</th><th>Actions</th></tr></thead>
-                    <tbody>${data.categories.map(c => `
+                    <tbody>${data.categories
+                      .map(
+                        (c) => `
                         <tr>
-                            <td><strong>${c.name}</strong><br><small style="color:var(--text-muted)">${c.slug}</small></td>
-                            <td><span class="role-badge" style="background:#f1f5f9; color:#475569;">${c.parentRef?.name || 'Main'}</span></td>
+                            <td><strong>${
+                              c.name
+                            }</strong><br><small style="color:var(--text-muted)">${
+                          c.slug
+                        }</small></td>
+                            <td><span class="role-badge" style="background:#f1f5f9; color:#475569;">${
+                              c.parentRef?.name || "Main"
+                            }</span></td>
                             <td>
-                                <button class="btn-delete" onclick="deleteCategory('${c._id}', '${c.name}')">
+                                <button class="btn-delete" onclick="deleteCategory('${
+                                  c._id
+                                }', '${c.name}')">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </td>
-                        </tr>`).join('')}
+                        </tr>`
+                      )
+                      .join("")}
                     </tbody>
                 </table>
             </div>`;
-    } catch (e) { workspace.innerHTML = "Error loading category data."; }
+  } catch (e) {
+    workspace.innerHTML = "Error loading category data.";
+  }
 }
 
 async function renderAddCategoryForm() {
-    viewTitle.innerText = "New Department";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    
-    try {
-        const res = await fetch('http://localhost:3000/admin/getAllcategories', { credentials: 'include' });
-        const data = await res.json();
-        const parentOptions = data.categories.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+  viewTitle.innerText = "New Department";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
-        workspace.innerHTML = `
+  try {
+    const res = await fetch("http://localhost:3000/admin/getAllcategories", {
+      credentials: "include",
+    });
+    const data = await res.json();
+    const parentOptions = data.categories
+      .map((c) => `<option value="${c._id}">${c.name}</option>`)
+      .join("");
+
+    workspace.innerHTML = `
             <div class="form-container animate-in" style="max-width: 600px; margin: auto;">
                 <form id="catForm">
                     <div class="form-group"><label>Category Name</label><input type="text" id="cN" placeholder="e.g. Whey Protein" required></div>
@@ -298,32 +417,46 @@ async function renderAddCategoryForm() {
                 </form>
             </div>`;
 
-        document.getElementById('catForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const res = await fetch('http://localhost:3000/admin/createCategory', {
-                method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include',
-                body: JSON.stringify({name:cN.value, description:cD.value, parentId:cP.value || null})
-            });
-            const d = await res.json(); 
-            alert(d.message); 
-            if(res.ok) renderCategoryList();
-        };
-    } catch (e) { alert("Failed to fetch parent options."); }
+    document.getElementById("catForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const res = await fetch("http://localhost:3000/admin/createCategory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: cN.value,
+          description: cD.value,
+          parentId: cP.value || null,
+        }),
+      });
+      const d = await res.json();
+      alert(d.message);
+      if (res.ok) renderCategoryList();
+    };
+  } catch (e) {
+    alert("Failed to fetch parent options.");
+  }
 }
 
 async function deleteCategory(id, name) {
-    if(!confirm(`Delete category "${name}"? This may affect items assigned to it.`)) return;
-    const res = await fetch(`http://localhost:3000/admin/category/${id}`, { method: 'DELETE', credentials: 'include' });
-    const data = await res.json();
-    alert(data.message);
-    if(res.ok) renderCategoryList();
+  if (
+    !confirm(`Delete category "${name}"? This may affect items assigned to it.`)
+  )
+    return;
+  const res = await fetch(`http://localhost:3000/admin/category/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const data = await res.json();
+  alert(data.message);
+  if (res.ok) renderCategoryList();
 }
 
 // --- 5. SEARCH & MISC ---
 function renderSearchPage() {
-    viewTitle.innerText = "Identity Lookup";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    workspace.innerHTML = `
+  viewTitle.innerText = "Identity Lookup";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+  workspace.innerHTML = `
         <div class="form-container animate-in" style="max-width:500px; margin:auto;">
             <div class="form-group">
                 <label>Database User ID</label>
@@ -335,15 +468,19 @@ function renderSearchPage() {
 }
 
 async function searchU() {
-    const res = await fetch(`http://localhost:3000/admin/user/${sId.value}`, { credentials: 'include' });
-    const d = await res.json();
-    sR.innerHTML = res.ok ? `<div class="role-badge" style="width:100%; text-align:center; padding:15px; font-size:14px;">Found: ${d.user.username} (${d.user.email})</div>` : `<p style="color:red; text-align:center;">${d.message}</p>`;
+  const res = await fetch(`http://localhost:3000/admin/user/${sId.value}`, {
+    credentials: "include",
+  });
+  const d = await res.json();
+  sR.innerHTML = res.ok
+    ? `<div class="role-badge" style="width:100%; text-align:center; padding:15px; font-size:14px;">Found: ${d.user.username} (${d.user.email})</div>`
+    : `<p style="color:red; text-align:center;">${d.message}</p>`;
 }
 
 function renderCreateForm() {
-    viewTitle.innerText = "Register Account";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    workspace.innerHTML = `
+  viewTitle.innerText = "Register Account";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+  workspace.innerHTML = `
         <div class="form-container animate-in" style="max-width:500px; margin:auto;">
             <form id="newUF">
                 <div class="form-group"><label>Username</label><input type="text" id="nN" required></div>
@@ -352,67 +489,83 @@ function renderCreateForm() {
                 <button type="submit" class="btn-primary-action">Create User</button>
             </form>
         </div>`;
-    document.getElementById('newUF').onsubmit = async (e) => {
-        e.preventDefault();
-        const res = await fetch('http://localhost:3000/admin/createUser', {
-            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
-            body: JSON.stringify({ username: nN.value, email: nE.value, password: nP.value })
-        });
-        const d = await res.json(); alert(d.message); if(res.ok) fetchAllUsers();
-    };
+  document.getElementById("newUF").onsubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("http://localhost:3000/admin/createUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        username: nN.value,
+        email: nE.value,
+        password: nP.value,
+      }),
+    });
+    const d = await res.json();
+    alert(d.message);
+    if (res.ok) fetchAllUsers();
+  };
 }
 // --- DYNAMIC VARIANT MANAGEMENT (Updated with Image Support) ---
 let productVariants = [];
 
 function addVariantToForm() {
-    const label = document.getElementById('vLabel').value;
-    const price = parseFloat(document.getElementById('vPrice').value);
-    const stock = parseInt(document.getElementById('vStock').value);
-    const sku = document.getElementById('vSku').value;
-    const vImg = document.getElementById('vImg').value; // New Image Input
+  const label = document.getElementById("vLabel").value;
+  const price = parseFloat(document.getElementById("vPrice").value);
+  const stock = parseInt(document.getElementById("vStock").value);
+  const sku = document.getElementById("vSku").value;
+  const vImg = document.getElementById("vImg").value; // New Image Input
 
-    if (!label || isNaN(price) || isNaN(stock) || !sku) {
-        alert("Please fill all variant fields (Image is optional but recommended)");
-        return;
-    }
+  if (!label || isNaN(price) || isNaN(stock) || !sku) {
+    alert("Please fill all variant fields (Image is optional but recommended)");
+    return;
+  }
 
-    if (productVariants.some(v => v.sku === sku)) {
-        alert("Duplicate SKU in current list.");
-        return;
-    }
+  if (productVariants.some((v) => v.sku === sku)) {
+    alert("Duplicate SKU in current list.");
+    return;
+  }
 
-    // Push the variant including the image URL
-    productVariants.push({ 
-        label, 
-        price, 
-        stock, 
-        sku, 
-        image: vImg // Your controller/schema expects this
-    });
-    
-    updateVariantListUI();
+  // Push the variant including the image URL
+  productVariants.push({
+    label,
+    price,
+    stock,
+    sku,
+    image: vImg, // Your controller/schema expects this
+  });
 
-    // Clear variant inputs
-    document.getElementById('vLabel').value = '';
-    document.getElementById('vPrice').value = '';
-    document.getElementById('vStock').value = '';
-    document.getElementById('vSku').value = '';
-    document.getElementById('vImg').value = '';
+  updateVariantListUI();
+
+  // Clear variant inputs
+  document.getElementById("vLabel").value = "";
+  document.getElementById("vPrice").value = "";
+  document.getElementById("vStock").value = "";
+  document.getElementById("vSku").value = "";
+  document.getElementById("vImg").value = "";
 }
 
 function updateVariantListUI() {
-    const list = document.getElementById('variantList');
-    if (productVariants.length === 0) {
-        list.innerHTML = `<p style="color:#94a3b8; text-align:center; padding:20px; border: 2px dashed #e2e8f0; border-radius:12px;">No variants added yet.</p>`;
-        return;
-    }
+  const list = document.getElementById("variantList");
+  if (productVariants.length === 0) {
+    list.innerHTML = `<p style="color:#94a3b8; text-align:center; padding:20px; border: 2px dashed #e2e8f0; border-radius:12px;">No variants added yet.</p>`;
+    return;
+  }
 
-    list.innerHTML = productVariants.map((v, index) => `
+  list.innerHTML = productVariants
+    .map(
+      (v, index) => `
         <div class="variant-item animate-in">
             <div class="variant-info">
-                <img src="${v.image || 'https://via.placeholder.com/50'}" class="variant-img-preview" onerror="this.src='https://via.placeholder.com/50'">
+                <img src="${
+                  v.image || "https://via.placeholder.com/50"
+                }" class="variant-img-preview" onerror="this.src='https://via.placeholder.com/50'">
                 <div class="variant-details">
-                    <h4>${v.label} <span style="color:#94a3b8; font-weight:400;">(${v.sku})</span></h4>
+                    <h4>${
+                      v.label
+                    } <span style="color:#94a3b8; font-weight:400;">(${
+        v.sku
+      })</span></h4>
                     <p><strong>$${v.price}</strong> • Stock: ${v.stock} pcs</p>
                 </div>
             </div>
@@ -420,21 +573,28 @@ function updateVariantListUI() {
                 <i class="fa-solid fa-trash-can"></i>
             </button>
         </div>
-    `).join('');
+    `
+    )
+    .join("");
 }
 
 async function renderAddProductForm() {
-    productVariants = []; // Reset local state
-    viewTitle.innerText = "New Product Entry";
-    viewSubtitle.innerText = "Create a new catalog item with multiple inventory variants.";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+  productVariants = []; // Reset local state
+  viewTitle.innerText = "New Product Entry";
+  viewSubtitle.innerText =
+    "Create a new catalog item with multiple inventory variants.";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
-    try {
-        const catRes = await fetch('http://localhost:3000/admin/getAllcategories', { credentials: 'include' });
-        const catData = await catRes.json();
-        const catOptions = catData.categories.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+  try {
+    const catRes = await fetch("http://localhost:3000/admin/getAllcategories", {
+      credentials: "include",
+    });
+    const catData = await catRes.json();
+    const catOptions = catData.categories
+      .map((c) => `<option value="${c._id}">${c.name}</option>`)
+      .join("");
 
-        workspace.innerHTML = `
+    workspace.innerHTML = `
             <div class="update-grid animate-in">
                 <div class="form-container">
                     <h3>Basic Information</h3>
@@ -463,60 +623,87 @@ async function renderAddProductForm() {
                 </div>
             </div>`;
 
-        updateVariantListUI();
+    updateVariantListUI();
 
-        document.getElementById('productForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (productVariants.length === 0) return alert("Please add at least one variant.");
-            
-            const payload = {
-                name: pN.value, description: pD.value, categoryId: pC.value,
-                images: pI.value.split(',').map(s => s.trim()).filter(s => s),
-                variants: productVariants
-            };
+    document.getElementById("productForm").onsubmit = async (e) => {
+      e.preventDefault();
+      if (productVariants.length === 0)
+        return alert("Please add at least one variant.");
 
-            const res = await fetch('http://localhost:3000/admin/product', {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
-                body: JSON.stringify(payload)
-            });
-            const d = await res.json(); alert(d.message); if(res.ok) fetchProducts();
-        };
-    } catch (e) { alert("Error loading creation form."); }
+      const payload = {
+        name: pN.value,
+        description: pD.value,
+        categoryId: pC.value,
+        images: pI.value
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s),
+        variants: productVariants,
+      };
+
+      const res = await fetch("http://localhost:3000/admin/product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      const d = await res.json();
+      alert(d.message);
+      if (res.ok) fetchProducts();
+    };
+  } catch (e) {
+    alert("Error loading creation form.");
+  }
 }
 // --- EDIT PRODUCT LOGIC ---
 async function renderEditProduct(rawProductId) {
-    const productId = rawProductId.replace(/[^0-9a-fA-F]/g, ''); // Clean ID string
-    viewTitle.innerText = "Refine Product";
-    viewSubtitle.innerText = "Update pricing, stock, and descriptive content.";
-    headerActions.innerHTML = `<button class="btn-back" onclick="fetchProducts()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
-    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+  const productId = rawProductId.replace(/[^0-9a-fA-F]/g, ""); // Clean ID string
+  viewTitle.innerText = "Refine Product";
+  viewSubtitle.innerText = "Update pricing, stock, and descriptive content.";
+  headerActions.innerHTML = `<button class="btn-back" onclick="fetchProducts()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+  workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
-    try {
-        const [prodRes, catRes] = await Promise.all([
-            fetch(`http://localhost:3000/admin/product/${productId}`, { credentials: 'include' }),
-            fetch('http://localhost:3000/admin/getAllcategories', { credentials: 'include' })
-        ]);
+  try {
+    const [prodRes, catRes] = await Promise.all([
+      fetch(`http://localhost:3000/admin/product/${productId}`, {
+        credentials: "include",
+      }),
+      fetch("http://localhost:3000/admin/getAllcategories", {
+        credentials: "include",
+      }),
+    ]);
 
-        const prodData = await prodRes.json();
-        const catData = await catRes.json();
-        const p = prodData.product;
+    const prodData = await prodRes.json();
+    const catData = await catRes.json();
+    const p = prodData.product;
 
-        // Map existing variants into our dynamic builder list
-        productVariants = p.variants.map(v => ({ ...v }));
+    // Map existing variants into our dynamic builder list
+    productVariants = p.variants.map((v) => ({ ...v }));
 
-        const catOptions = catData.categories.map(c => 
-            `<option value="${c._id}" ${c._id === (p.categoryRef?._id || p.categoryRef) ? 'selected' : ''}>${c.name}</option>`
-        ).join('');
+    const catOptions = catData.categories
+      .map(
+        (c) =>
+          `<option value="${c._id}" ${
+            c._id === (p.categoryRef?._id || p.categoryRef) ? "selected" : ""
+          }>${c.name}</option>`
+      )
+      .join("");
 
-        workspace.innerHTML = `
+    workspace.innerHTML = `
             <div class="update-grid animate-in">
                 <div class="form-container">
                     <h3>Basic Information</h3>
                     <form id="editProductForm">
-                        <div class="form-group"><label>Product Name</label><input type="text" id="pN" value="${p.name}" required></div>
+                        <div class="form-group"><label>Product Name</label><input type="text" id="pN" value="${
+                          p.name
+                        }" required></div>
                         <div class="form-group"><label>Category</label><select id="pC" required>${catOptions}</select></div>
-                        <div class="form-group"><label>Description</label><textarea id="pD" rows="4">${p.description || ''}</textarea></div>
-                        <div class="form-group"><label>Gallery (CSV URLs)</label><input type="text" id="pI" value="${p.images?.join(', ') || ''}"></div>
+                        <div class="form-group"><label>Description</label><textarea id="pD" rows="4">${
+                          p.description || ""
+                        }</textarea></div>
+                        <div class="form-group"><label>Gallery (CSV URLs)</label><input type="text" id="pI" value="${
+                          p.images?.join(", ") || ""
+                        }"></div>
                         <button type="submit" class="btn-primary-action" style="width:100%; margin-top:20px;">Save All Changes</button>
                     </form>
                 </div>
@@ -537,126 +724,147 @@ async function renderEditProduct(rawProductId) {
                 </div>
             </div>`;
 
-        updateVariantListUI();
+    updateVariantListUI();
 
-        document.getElementById('editProductForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const res = await fetch(`http://localhost:3000/admin/product/${productId}`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
-                body: JSON.stringify({
-                    name: pN.value, description: pD.value, categoryId: pC.value,
-                    images: pI.value.split(',').map(s => s.trim()).filter(s => s),
-                    variants: productVariants
-                })
-            });
-            const d = await res.json(); alert(d.message); if(res.ok) fetchProducts();
-        };
-    } catch (err) { alert("Could not fetch product details."); }
+    document.getElementById("editProductForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const res = await fetch(
+        `http://localhost:3000/admin/product/${productId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            name: pN.value,
+            description: pD.value,
+            categoryId: pC.value,
+            images: pI.value
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s),
+            variants: productVariants,
+          }),
+        }
+      );
+      const d = await res.json();
+      alert(d.message);
+      if (res.ok) fetchProducts();
+    };
+  } catch (err) {
+    alert("Could not fetch product details.");
+  }
 }
 async function deleteProduct(productId, productName) {
-    // 1. Confirm with the user
-    const confirmDelete = confirm(`Are you sure you want to delete "${productName}"?\nThis action cannot be undone.`);
-    
-    if (!confirmDelete) return;
+  // 1. Confirm with the user
+  const confirmDelete = confirm(
+    `Are you sure you want to delete "${productName}"?\nThis action cannot be undone.`
+  );
 
-    try {
-        const res = await fetch(`http://localhost:3000/admin/product/${productId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
+  if (!confirmDelete) return;
 
-        const data = await res.json();
+  try {
+    const res = await fetch(
+      `http://localhost:3000/admin/product/${productId}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
 
-        if (res.ok) {
-            alert(data.message);
-            // 2. Refresh the table to show the product is gone
-            fetchProducts(); 
-        } else {
-            alert(data.message || "Failed to delete product");
-        }
-    } catch (err) {
-        console.error("Delete Error:", err);
-        alert("Server connection error.");
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message);
+      // 2. Refresh the table to show the product is gone
+      fetchProducts();
+    } else {
+      alert(data.message || "Failed to delete product");
     }
+  } catch (err) {
+    console.error("Delete Error:", err);
+    alert("Server connection error.");
+  }
 }
 // --- 6. UTILITIES ---
 // --- CUSTOM MODAL LOGIC ---
 function logout() {
-    const modal = document.getElementById('custom-modal-overlay');
-    const confirmBtn = document.getElementById('modal-confirm-btn');
+  const modal = document.getElementById("custom-modal-overlay");
+  const confirmBtn = document.getElementById("modal-confirm-btn");
 
-    // Show Modal
-    modal.style.display = 'flex';
-    
-    // Set up the click handler for the confirm button
-    confirmBtn.onclick = async () => {
-        try {
-            const res = await fetch('http://localhost:3000/logout', {
-                method: 'GET',
-                credentials: 'include'
-            });
+  // Show Modal
+  modal.style.display = "flex";
 
-            if (res.ok) {
-                window.location.href = 'http://localhost:5500/Login/public/login.html';
-            }
-        } catch (error) {
-            alert("Logout failed connection.");
-        }
-    };
+  // Set up the click handler for the confirm button
+  confirmBtn.onclick = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/logout", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        window.location.href = "http://localhost:5500/Login/public/login.html";
+      }
+    } catch (error) {
+      alert("Logout failed connection.");
+    }
+  };
 }
 
 function closeModal() {
-    document.getElementById('custom-modal-overlay').style.display = 'none';
+  document.getElementById("custom-modal-overlay").style.display = "none";
 }
 
 // Close modal if user clicks outside the card
-window.onclick = function(event) {
-    const modal = document.getElementById('custom-modal-overlay');
-    if (event.target == modal) {
-        closeModal();
-    }
-}
+window.onclick = function (event) {
+  const modal = document.getElementById("custom-modal-overlay");
+  if (event.target == modal) {
+    closeModal();
+  }
+};
 async function renderStockWatch() {
-    viewTitle.innerText = "Stock Watch";
-    viewSubtitle.innerText = "Items requiring immediate restock attention.";
-    headerActions.innerHTML = `<button class="btn-primary-action" onclick="fetchProducts()"><i class="fa-solid fa-rotate"></i> Refresh Inventory</button>`;
-    
-    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+  viewTitle.innerText = "Stock Watch";
+  viewSubtitle.innerText = "Items requiring immediate restock attention.";
+  headerActions.innerHTML = `<button class="btn-primary-action" onclick="fetchProducts()"><i class="fa-solid fa-rotate"></i> Refresh Inventory</button>`;
 
-    try {
-        // We reuse your existing Product List API
-        const res = await fetch('http://localhost:3000/admin/product?limit=100', { credentials: 'include' });
-        const data = await res.json();
-        
-        // 1. FILTER: Find variants where stock is less than 10
-        const lowStockItems = [];
-        data.products.forEach(product => {
-            product.variants.forEach(variant => {
-                if (variant.stock <= 10) {
-                    lowStockItems.push({
-                        productId: product._id,
-                        name: product.name,
-                        variantLabel: variant.label,
-                        sku: variant.sku,
-                        stock: variant.stock,
-                        image: variant.image
-                    });
-                }
-            });
-        });
+  workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
-        if (lowStockItems.length === 0) {
-            workspace.innerHTML = `
+  try {
+    // We reuse your existing Product List API
+    const res = await fetch("http://localhost:3000/admin/product?limit=100", {
+      credentials: "include",
+    });
+    const data = await res.json();
+
+    // 1. FILTER: Find variants where stock is less than 10
+    const lowStockItems = [];
+    data.products.forEach((product) => {
+      product.variants.forEach((variant) => {
+        if (variant.stock <= 10) {
+          lowStockItems.push({
+            productId: product._id,
+            name: product.name,
+            variantLabel: variant.label,
+            sku: variant.sku,
+            stock: variant.stock,
+            image: variant.image,
+          });
+        }
+      });
+    });
+
+    if (lowStockItems.length === 0) {
+      workspace.innerHTML = `
                 <div class="form-container" style="text-align:center; padding:40px;">
                     <i class="fa-solid fa-check-circle" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
                     <h3>All Stocked Up!</h3>
                     <p>No variants are currently below the low-stock threshold.</p>
                 </div>`;
-            return;
-        }
+      return;
+    }
 
-        // 2. RENDER: Show them in an urgent list
-        workspace.innerHTML = `
+    // 2. RENDER: Show them in an urgent list
+    workspace.innerHTML = `
             <div class="form-container animate-in">
                 <table class="admin-table">
                     <thead>
@@ -669,49 +877,362 @@ async function renderStockWatch() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${lowStockItems.map(item => `
+                        ${lowStockItems
+                          .map(
+                            (item) => `
                             <tr>
                                 <td>
                                     <div style="display:flex; align-items:center; gap:10px;">
-                                        <img src="${item.image || 'https://via.placeholder.com/40'}" style="width:35px; height:35px; border-radius:5px; object-fit:cover;">
+                                        <img src="${
+                                          item.image ||
+                                          "https://via.placeholder.com/40"
+                                        }" style="width:35px; height:35px; border-radius:5px; object-fit:cover;">
                                         <div>
-                                            <div style="font-weight:700;">${item.name}</div>
-                                            <small style="color:var(--text-muted)">${item.variantLabel}</small>
+                                            <div style="font-weight:700;">${
+                                              item.name
+                                            }</div>
+                                            <small style="color:var(--text-muted)">${
+                                              item.variantLabel
+                                            }</small>
                                         </div>
                                     </div>
                                 </td>
                                 <td><code>${item.sku}</code></td>
                                 <td>
-                                    <span style="font-weight:800; color:${item.stock === 0 ? '#e11d48' : '#f59e0b'}">
+                                    <span style="font-weight:800; color:${
+                                      item.stock === 0 ? "#e11d48" : "#f59e0b"
+                                    }">
                                         ${item.stock} units
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="role-badge" style="background:${item.stock === 0 ? '#ffe4e6' : '#fef3c7'}; color:${item.stock === 0 ? '#e11d48' : '#b45309'}">
-                                        ${item.stock === 0 ? 'Out of Stock' : 'Low Stock'}
+                                    <span class="role-badge" style="background:${
+                                      item.stock === 0 ? "#ffe4e6" : "#fef3c7"
+                                    }; color:${
+                              item.stock === 0 ? "#e11d48" : "#b45309"
+                            }">
+                                        ${
+                                          item.stock === 0
+                                            ? "Out of Stock"
+                                            : "Low Stock"
+                                        }
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn-edit" onclick="renderEditProduct('${item.productId}')">
+                                    <button class="btn-edit" onclick="renderEditProduct('${
+                                      item.productId
+                                    }')">
                                         <i class="fa-solid fa-truck-ramp-box"></i> Restock
                                     </button>
                                 </td>
                             </tr>
-                        `).join('')}
+                        `
+                          )
+                          .join("")}
                     </tbody>
                 </table>
             </div>
         `;
-    } catch (err) {
-        workspace.innerHTML = `<p>Error loading stock alerts.</p>`;
+  } catch (err) {
+    workspace.innerHTML = `<p>Error loading stock alerts.</p>`;
+  }
+}
+function renderAddCouponForm() {
+    viewTitle.innerText = "Create Promotion";
+    viewSubtitle.innerText = "Generate new discount codes for the store.";
+    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+
+    workspace.innerHTML = `
+        <div class="form-container animate-in" style="max-width: 700px; margin: auto;">
+            <form id="couponForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Coupon Code</label>
+                        <input type="text" id="cpCode" placeholder="e.g. IRON20" required style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Discount Type</label>
+                        <select id="cpType" required>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="flat">Flat Amount ($)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Discount Value</label>
+                        <input type="number" id="cpValue" placeholder="20" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" id="cpExpiry" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Min Order Value ($)</label>
+                        <input type="number" id="cpMin" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Usage Limit (Total)</label>
+                        <input type="number" id="cpLimit" value="0" placeholder="0 for unlimited">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary-action" style="margin-top: 20px; width: 100%;">Activate Coupon</button>
+            </form>
+        </div>
+    `;
+
+    document.getElementById('couponForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const payload = {
+            code: document.getElementById('cpCode').value,
+            type: document.getElementById('cpType').value,
+            value: parseFloat(document.getElementById('cpValue').value),
+            expiryDate: document.getElementById('cpExpiry').value,
+            minOrderValue: parseFloat(document.getElementById('cpMin').value),
+            usageLimit: parseInt(document.getElementById('cpLimit').value)
+        };
+
+        try {
+            const res = await fetch('http://localhost:3000/admin/coupons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            if (res.ok) renderHome();
+        } catch (err) {
+            alert("Error connecting to Coupon API");
+        }
+    };
+}
+async function renderCouponManager() {
+    setActiveNav('nav-coupons');
+    viewTitle.innerText = "Coupon Directory";
+    viewSubtitle.innerText = "View and manage active discount codes and promotions.";
+    headerActions.innerHTML = `
+        <button class="btn-primary-action" onclick="renderAddCouponForm()">
+            <i class="fa-solid fa-plus"></i> New Coupon
+        </button>`;
+    
+    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+
+    try {
+        // Fetching from your specific route
+        const res = await fetch('http://localhost:3000/admin/getAllcoupons?limit=20', { credentials: 'include' });
+        const data = await res.json();
+        
+        // Note: Your controller returns { coupons: [...] }
+        const coupons = data.coupons || [];
+
+        if (coupons.length === 0) {
+            workspace.innerHTML = `
+                <div class="form-container animate-in" style="text-align:center; padding:60px;">
+                    <div style="font-size: 50px; color: #64748b; margin-bottom: 20px;"><i class="fa-solid fa-ticket"></i></div>
+                    <h3>No Coupons Found</h3>
+                    <p>Start a marketing campaign by creating your first code.</p>
+                    <button class="btn-primary-action" onclick="renderAddCouponForm()" style="margin-top:20px;">Create First Coupon</button>
+                </div>`;
+            return;
+        }
+
+        workspace.innerHTML = `
+            <div class="table-wrapper animate-in">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Usage Stats</th>
+                            <th>Expiry</th>
+                            <th>Visibility</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${coupons.map(cp => {
+                            const isExpired = new Date(cp.expiryDate) < new Date();
+                            const statusColor = isExpired ? '#e11d48' : (cp.isActive ? '#10b981' : '#64748b');
+                            
+                            return `
+                                <tr>
+                                    <td><code style="font-size:1.1rem; color:#6366f1; font-weight:bold;">${cp.code}</code></td>
+                                    <td><span class="role-badge" style="background:#f1f5f9; color:#475569;">${cp.type.toUpperCase()}</span></td>
+                                    <td><strong>${cp.type === 'percentage' ? cp.value + '%' : '$' + cp.value}</strong></td>
+                                    <td>
+                                        <div style="font-size:0.85rem;">
+                                            <strong>${cp.usedCount}</strong> Redeemed<br>
+                                            <small style="color:#64748b;">Limit: ${cp.usageLimit === 0 ? '∞' : cp.usageLimit}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size:0.85rem; color:${isExpired ? '#e11d48' : 'inherit'}">
+                                            ${new Date(cp.expiryDate).toLocaleDateString()}<br>
+                                            <small>${isExpired ? 'EXPIRED' : 'REMAINING'}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="role-badge" style="background:${statusColor}20; color:${statusColor}; border: 1px solid ${statusColor}40;">
+                                            ${cp.isActive ? 'Public' : 'Hidden'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display:flex; gap:8px;">
+                                            <button class="btn-edit" title="Edit Coupon" onclick="alert('Edit logic coming soon!')">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                            <button class="btn-delete" title="Delete Coupon" onclick="deleteCoupon('${cp._id}')">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    } catch (e) {
+        workspace.innerHTML = `<div class="form-container"><p>Error loading coupons. Check console.</p></div>`;
     }
 }
+async function renderOrderManager() {
+    setActiveNav('nav-orders');
+    viewTitle.innerText = "Order Management";
+    viewSubtitle.innerText = "Track customer purchases, fulfillment status, and revenue.";
+    headerActions.innerHTML = `<button class="btn-primary-action" onclick="renderHome()"><i class="fa-solid fa-house"></i> Dashboard</button>`;
+    
+    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+
+    try {
+        const res = await fetch('http://localhost:3000/admin/getAllorders?limit=20', { credentials: 'include' });
+        const data = await res.json();
+        const orders = data.orders || [];
+
+        if (orders.length === 0) {
+            workspace.innerHTML = `
+                <div class="form-container animate-in" style="text-align:center; padding:60px;">
+                    <i class="fa-solid fa-box-open" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                    <h3>No Orders Yet</h3>
+                    <p>When customers buy products, they will appear here.</p>
+                </div>`;
+            return;
+        }
+
+        workspace.innerHTML = `
+            <div class="table-wrapper animate-in">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orders.map(order => {
+                            // Status Badge Colors
+                            const statusColors = {
+                                'pending': '#f59e0b',
+                                'shipped': '#3b82f6',
+                                'delivered': '#10b981',
+                                'cancelled': '#e11d48'
+                            };
+                            const color = statusColors[order.status.toLowerCase()] || '#64748b';
+
+                            return `
+                                <tr>
+                                    <td><small>#${order._id.slice(-8).toUpperCase()}</small></td>
+                                    <td>
+                                        <div style="font-weight:600;">${order.user?.username || 'Guest'}</div>
+                                        <small style="color:#64748b;">${order.user?.email || 'N/A'}</small>
+                                    </td>
+                                    <td><strong>$${order.finalAmount || order.totalPrice}</strong></td>
+                                    <td>
+                                        <span class="role-badge" style="background:${color}20; color:${color}; border:1px solid ${color}40;">
+                                            ${order.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span style="color:${order.paymentStatus === 'paid' ? '#10b981' : '#e11d48'}; font-size:0.85rem; font-weight:600;">
+                                            <i class="fa-solid ${order.paymentStatus === 'paid' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+                                            ${order.paymentStatus.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn-edit" onclick="viewOrderDetails('${order._id}')">
+                                            <i class="fa-solid fa-eye"></i> Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    } catch (e) {
+        workspace.innerHTML = `<div class="form-container"><p>Error fetching orders. Check server connection.</p></div>`;
+    }
+}
+async function renderQuickSalesReport() {
+    viewTitle.innerText = "Sales Analytics (Live)";
+    viewSubtitle.innerText = "Calculated from recent order data.";
+    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+
+    try {
+        // Fetch last 50 orders to get a good sample size
+        const res = await fetch('http://localhost:3000/admin/getAllorders?limit=50', { credentials: 'include' });
+        const data = await res.json();
+        const orders = data.orders || [];
+
+        // Calculation Logic
+        const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+        const paidOrders = orders.filter(o => o.paymentStatus === 'paid').length;
+        const pendingOrders = orders.filter(o => o.status === 'pending').length;
+        const avgOrderValue = orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0;
+
+        workspace.innerHTML = `
+            <div class="animate-in">
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div class="stat-card" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center;">
+                        <h3 style="color: #10b981; font-size: 2rem;">$${totalRevenue.toLocaleString()}</h3>
+                        <p style="color: #64748b; font-weight: 600;">Gross Revenue (Last 50)</p>
+                    </div>
+                    <div class="stat-card" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center;">
+                        <h3 style="color: #3b82f6; font-size: 2rem;">$${avgOrderValue}</h3>
+                        <p style="color: #64748b; font-weight: 600;">Avg. Order Value</p>
+                    </div>
+                    <div class="stat-card" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center;">
+                        <h3 style="color: #f59e0b; font-size: 2rem;">${pendingOrders}</h3>
+                        <p style="color: #64748b; font-weight: 600;">Pending Fulfillment</p>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <h3 style="margin-bottom: 15px;">Revenue Distribution</h3>
+                    <p>Based on the latest ${orders.length} orders in your database.</p>
+                    </div>
+            </div>
+        `;
+    } catch (e) {
+        workspace.innerHTML = `<p>Error generating report.</p>`;
+    }
+}
+
 function goToStore() {
-    // Redirects the admin back to the main customer website
-    window.location.href = "http://localhost:5500/Login/public/WebPage.html";
+  // Redirects the admin back to the main customer website
+  window.location.href = "http://localhost:5500/Login/public/WebPage.html";
 }
 // Set admin name in sidebar
-document.getElementById('admin-name').innerText = localStorage.getItem('userName') || 'Admin';
+document.getElementById("admin-name").innerText =
+  localStorage.getItem("userName") || "Admin";
 
 // Initialize Dashboard
 renderHome();

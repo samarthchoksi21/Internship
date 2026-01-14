@@ -15,10 +15,33 @@
 
     <nav class="navbar">
         <div class="logo">IRON<span>GEAR</span></div>
-        <div class="nav-right">
+        <div class="nav-right" style="display: flex; align-items: center; gap: 20px;">
             <div class="cart-trigger" onclick="toggleCart()">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span id="cart-count">0</span>
+            </div>
+
+            <div class="user-menu-container" style="position: relative;">
+                <div class="profile-trigger" onclick="toggleProfileMenu()"
+                    style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <span id="user-display-name" style="font-weight: 600; font-size: 14px; color: #333;">...</span>
+                    <div class="avatar-circle"
+                        style="width: 35px; height: 35px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fa-solid fa-user" style="font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div id="profile-dropdown" class="dropdown-menu"
+                    style="display: none; position: absolute; right: 0; top: 45px; background: white; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 180px; z-index: 1001; border: 1px solid #eee; overflow: hidden;">
+                    <button onclick="showUserInfo()"
+                        style="width: 100%; padding: 12px 15px; text-align: left; border: none; background: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-circle-user"></i> My Profile
+                    </button>
+                    <button onclick="handleLogout()"
+                        style="width: 100%; padding: 12px 15px; text-align: left; border: none; background: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px; color: #ff4d4d; border-top: 1px solid #eee;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -88,6 +111,26 @@
         </div>
     </div>
     <div id="overlay" class="overlay" onclick="toggleCart()"></div>
+    <div id="user-modal" class="cart-drawer" style="right: -400px; transition: 0.4s ease;">
+        <div class="cart-header">
+            <h3>Member Profile</h3>
+            <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="closeUserModal()"></i>
+        </div>
+        <div style="padding: 30px; text-align: center;">
+            <div
+                style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #222;">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2 id="modal-username" style="margin-bottom: 5px;">Username</h2>
+            <p id="modal-email" style="color: #666; margin-bottom: 20px;">email@example.com</p>
+
+            <div style="text-align: left; background: #f9fafb; padding: 15px; border-radius: 10px; font-size: 14px;">
+                <p style="margin-bottom: 10px;"><strong>Status:</strong> <span style="color: #22c55e;">Active
+                        Warrior</span></p>
+                <p><strong>Role:</strong> <span id="modal-role">User</span></p>
+            </div>
+        </div>
+    </div>
 
     <script src="WebPage.js"></script>
 </body>

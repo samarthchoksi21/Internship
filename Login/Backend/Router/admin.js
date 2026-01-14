@@ -15,7 +15,9 @@ const {
   GetUserById,
   EditProduct,
   DeleteProduct,
-  createCoupon
+  createCoupon,
+  getAllOrders,
+  getAllCoupons
 } = require("../controller/admin");
 
 const { checkAuth } = require("../middlewares/auth");
@@ -38,4 +40,6 @@ Router.get('/product/:productId', checkAuth("product:view"), async (req, res) =>
     res.json({ product });
 });
 Router.post('/coupons',checkAuth("coupon:create"),createCoupon)
+Router.get('/getAllorders',checkAuth("order:update_status"),getAllOrders)
+Router.get('/getAllcoupons',checkAuth("coupon:view"),getAllCoupons)
 module.exports = Router;

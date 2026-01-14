@@ -63,6 +63,95 @@ function renderGrid(list) {
         </div>
     `).join('');
 }
+let currentUser = null; // Global variable to store user details
+
+// --- 1. UPDATED AUTH & USER DATA ---
+async function verifyUser() {
+    try {
+        // Step 1: Check if user is logged in
+        const res = await fetch("http://localhost:3000/auth/verify", {
+            credentials: "include"
+        });
+
+        if (!res.ok) {
+            window.location.href = "http://localhost:5500/Login/public/login.html";
+            return;
+        }
+
+        // Step 2: Fetch full details for the profile menu
+        const detailRes = await fetch("http://localhost:3000/me", { credentials: "include" });
+        const detailData = await detailRes.json();
+        
+        if (detailRes.ok) {
+            currentUser = detailData.user;
+            // Update the Navbar Name (Show only first name)
+            const firstName = currentUser.username.split(' ')[0];
+            document.getElementById('user-display-name').innerText = firstName;
+        }
+    } catch (err) {
+        console.log("ERROR WHILE VERIFYING USER", err);
+    }
+}
+
+// --- 2. PROFILE UI HANDLERS ---
+function toggleProfileMenu() {
+    const menu = document.getElementById('profile-dropdown');
+    const isHidden = menu.style.display === 'none' || menu.style.display === '';
+    menu.style.display = isHidden ? 'block' : 'none';
+}
+
+// Close dropdown when clicking outside
+window.addEventListener('click', (e) => {
+    const container = document.querySelector('.user-menu-container');
+    if (container && !container.contains(e.target)) {
+        document.getElementById('profile-dropdown').style.display = 'none';
+    }
+});
+
+// --- 3. PROFILE MODAL CONTROL ---
+function showUserInfo() {
+    if (!currentUser) return;
+
+    // Populate the side modal
+    document.getElementById('modal-username').innerText = currentUser.username;
+    document.getElementById('modal-email').innerText = currentUser.email;
+    document.getElementById('modal-role').innerText = currentUser.role;
+    
+    // Slide the modal in
+    document.getElementById('user-modal').style.right = '0';
+    document.getElementById('overlay').classList.add('active');
+    
+    // Hide the small dropdown
+    document.getElementById('profile-dropdown').style.display = 'none';
+}
+
+function closeUserModal() {
+    document.getElementById('user-modal').style.right = '-400px';
+    // Only remove overlay if the cart drawer isn't open
+    if (!document.getElementById('cart-drawer').classList.contains('open')) {
+        document.getElementById('overlay').classList.remove('active');
+    }
+}
+
+// --- 4. LOGOUT LOGIC ---
+async function handleLogout() {
+    if (!confirm("Are you sure you want to log out of IRON GEAR?")) return;
+
+    try {
+        const res = await fetch("http://localhost:3000/logout", { credentials: "include" });
+        if (res.ok) {
+            // Clear local states if any
+            currentUser = null;
+            cart = [];
+            // Redirect to login
+            window.location.href = "http://localhost:5500/Login/public/login.html";
+        } else {
+            alert("Logout failed. Please try again.");
+        }
+    } catch (err) {
+        console.error("Logout error:", err);
+    }
+}
 
 function updateVariant(pid, price, img, btn) {
     document.getElementById(`price-${pid}`).innerText = price;
