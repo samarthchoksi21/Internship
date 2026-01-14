@@ -10,6 +10,9 @@ app.use(cors({
   credentials : true
 }));
 app.options("/", cors());
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "signup.html"));
+});
 const {VerifyUser} = require('./service/auth')
 const AdminRoute = require('./Router/admin')
 const UserRoute = require('./Router/user')
