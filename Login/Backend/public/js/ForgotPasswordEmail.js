@@ -36,7 +36,7 @@ document.getElementById("ForgotPasswordPage").addEventListener("submit", async (
 
     successMsg.textContent = data.Message;
     localStorage.setItem("pendingEmail", email);
-    window.location.href = "http://localhost:5500/Login/public/ChangePasswordOtp.html"
+    window.location.href = "http://localhost:5500/Login/Backend/public/ChangePasswordOtp.html"
   } catch (err) {
     errorMsg.textContent = "Server error. Try again later.";
   } finally {

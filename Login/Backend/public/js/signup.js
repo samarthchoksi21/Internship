@@ -69,7 +69,7 @@ document
       }
       localStorage.setItem("pendingEmail", email);
       window.location.href =
-        "http://localhost:5500/Login/public/otp.html";
+        "http://localhost:5500/Login/Backend/public/otp.html";
     } catch (error) {
       emailError.textContent = error.message;
       /* ---------- RESET UI ---------- */

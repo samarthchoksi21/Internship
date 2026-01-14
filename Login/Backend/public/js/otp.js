@@ -69,7 +69,7 @@ form.addEventListener("submit", async (e) => {
     localStorage.removeItem("pendingEmail");
 
     window.location.href =
-      "http://localhost:5500/Login/public/login.html";
+      "http://localhost:5500/Login/Backend/public/login.html";
 
   } catch (err) {
     errorBox.textContent = err.message || "Server error. Try again.";

@@ -8,7 +8,7 @@
 
     // 1. Check Authorization
     if (!res.ok || data.user.roleRef.name.toLowerCase() !== "admin") {
-      window.location.href = "login.html";
+      window.location.href = "http://localhost:5500/Login/Backend/public/login.html";
       return;
     }
 
@@ -1228,7 +1228,7 @@ async function renderQuickSalesReport() {
 
 function goToStore() {
   // Redirects the admin back to the main customer website
-  window.location.href = "http://localhost:5500/Login/public/WebPage.html";
+  window.location.href = "http://localhost:5500/Login/Backend/public/WebPage.html";
 }
 // Set admin name in sidebar
 document.getElementById("admin-name").innerText =
