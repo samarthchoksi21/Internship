@@ -278,11 +278,13 @@ async function initiateCheckout() {
     try {
         btn.disabled = true;
         btn.innerText = "Processing...";
+        console.log("Function started")
 
         // 1. Ensure Order is created in DB
         if (!currentOrderId) {
             await createDatabaseOrder();
         }
+        console.log("Function Mid")
 
         // 2. Get Razorpay Order ID from Backend
         const payRes = await fetch("http://localhost:3000/payment", {
@@ -291,6 +293,7 @@ async function initiateCheckout() {
             body: JSON.stringify({ orderId: currentOrderId }),
             credentials: "include"
         });
+        console.log("Function Mid 2")
 
         const payData = await payRes.json();
         if (!payRes.ok) throw new Error(payData.message);
@@ -309,12 +312,14 @@ async function initiateCheckout() {
             prefill: { name: "Warrior" },
             theme: { color: "#ff4d4d" }
         };
+        console.log("Function Mid 3")
 
         const rzp = new Razorpay(options);
         rzp.open();
 
     } catch (err) {
         alert(err.message);
+        console.log("Error from initiate checkout")
     } finally {
         btn.disabled = false;
         btn.innerText = "Proceed to Checkout";

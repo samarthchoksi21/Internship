@@ -70,6 +70,12 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       enum: ["unpaid", "paid", "failed"],
       default: "unpaid"
+    },
+    razorpayOrderId: {
+      type: String
+    },
+    razorpayPaymentId: {
+      type: String
     }
   },
   { timestamps: true }

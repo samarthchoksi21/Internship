@@ -480,7 +480,7 @@ async function applyCoupon(req, res) {
     let discount = 0;
 
     if (coupon.type === "percentage") {
-      discount = (order.subtotal * coupon.value) / 100;
+      discount = Math.round((order.subtotal * coupon.value) /100)
 
       if (coupon.maxDiscount && discount > coupon.maxDiscount) {
         discount = coupon.maxDiscount;
@@ -530,7 +530,7 @@ async function createPaymentOrder(req, res) {
     }
 
     const razorpayOrder = await razorpay.orders.create({
-      amount: order.finalAmount * 100, // paisa
+      amount: order.finalAmount, // paisa
       currency: "INR",
       receipt: order._id.toString()
     });
