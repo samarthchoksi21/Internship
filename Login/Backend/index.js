@@ -3,13 +3,16 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const app = express()
 const cors = require("cors");
+const allowedOrigins = [
+  "http://localhost:5500",
+  "https://iron-gear.onrender.com/"
+];
 app.use(cors({
-  origin: "http://localhost:5500",
+  origin: allowedOrigins,
   methods: ["GET", "POST","PUT","DELETE"],
   allowedHeaders: ["Content-Type"],
   credentials : true
 }));
-app.options("/", cors());
 app.use(express.static(path.join(__dirname, "public")));
 const {VerifyUser} = require('./service/auth')
 const AdminRoute = require('./Router/admin')
