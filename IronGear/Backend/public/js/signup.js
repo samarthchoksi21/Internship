@@ -69,7 +69,7 @@ document
       }
       localStorage.setItem("pendingEmail", email);
       window.location.href =
-        "http://localhost:5500/IronGear/Backend/public/otp.html";
+        "/otp.html";
     } catch (error) {
       emailError.textContent = error.message;
       /* ---------- RESET UI ---------- */

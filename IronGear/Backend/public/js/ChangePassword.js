@@ -47,7 +47,7 @@ document.getElementById("ForgotPasswordPage").addEventListener("submit", async (
 
     // Optional: clear form after success
     document.getElementById("ForgotPasswordPage").reset();
-    window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html"
+    window.location.href = "/login.html"
 
   } catch (err) {
     errorMsg.textContent = "Server error. Try again later.";

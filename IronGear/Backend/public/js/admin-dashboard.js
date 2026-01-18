@@ -8,7 +8,7 @@
 
     // 1. Check Authorization
     if (!res.ok || data.user.roleRef.name.toLowerCase() !== "admin") {
-      window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
+      window.location.href = "/login.html";
       return;
     }
 
