@@ -56,7 +56,7 @@ document
     loader.classList.remove("hidden");
 
     try {
-      const response = await fetch("http://localhost:3000/signup", {
+      const response = await fetch("/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),

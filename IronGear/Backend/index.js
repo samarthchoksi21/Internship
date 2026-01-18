@@ -2,14 +2,6 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const app = express()
-const cors = require("cors");
-app.use(cors({
-  origin: "http://localhost:5500",
-  methods: ["GET", "POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type"],
-  credentials : true
-}));
-app.options("/", cors());
 const {VerifyUser} = require('./service/auth')
 const AdminRoute = require('./Router/admin')
 const UserRoute = require('./Router/user')
