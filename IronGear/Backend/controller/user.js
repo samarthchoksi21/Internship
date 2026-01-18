@@ -50,7 +50,14 @@ async function HandleSignupPage(req, res) {
       { upsert: true }
     );
     const text = `Your OTP for signup is ${otp}. Please dont share this OTP with anyone.If you didnt sent this otp please ignore this message.`;
-    await sendOtp(email, otp, text);
+
+    let emailSent = true
+    try {
+      await sendOtp(email, otp, text);
+    } catch (error) {
+      emailSent = false,
+      console.error("OTP SENDING FAILED",error.message)
+    }
     return res.status(201).json({
       message: "OTP sent to email",
     });
