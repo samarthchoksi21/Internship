@@ -10,11 +10,11 @@ app.use(cors({
   credentials : true
 }));
 app.options("/", cors());
-app.use(express.static(path.join(__dirname, "public")));
 const {VerifyUser} = require('./service/auth')
 const AdminRoute = require('./Router/admin')
 const UserRoute = require('./Router/user')
 const {MongoConnection} = require('./connection')
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({extended : true}))
 app.use(express.json())
 app.use(cookieParser())
