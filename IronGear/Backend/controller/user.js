@@ -54,6 +54,7 @@ async function HandleSignupPage(req, res) {
     let emailSent = true
     try {
       await sendOtp(email, otp, text);
+      console.log("EMAIL OTP SENT")
     } catch (error) {
       emailSent = false,
       console.error("OTP SENDING FAILED",error.message)
