@@ -8,7 +8,7 @@
 
     // 1. Check Authorization
     if (!res.ok || data.user.roleRef.name.toLowerCase() !== "admin") {
-      window.location.href = "http://localhost:5500/Login/Backend/public/login.html";
+      window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
       return;
     }
 
@@ -21,7 +21,7 @@
     console.log(`Access Granted: Welcome ${data.user.username}`);
   } catch (err) {
     console.error("Auth Check Failed:", err);
-    window.location.href = "login.html";
+    window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
   }
 })();
 
@@ -803,7 +803,7 @@ function logout() {
       });
 
       if (res.ok) {
-        window.location.href = "http://localhost:5500/Login/public/login.html";
+        window.location.href = "http://localhost:5500/IronGear/public/login.html";
       }
     } catch (error) {
       alert("Logout failed connection.");
@@ -1228,7 +1228,7 @@ async function renderQuickSalesReport() {
 
 function goToStore() {
   // Redirects the admin back to the main customer website
-  window.location.href = "http://localhost:5500/Login/Backend/public/WebPage.html";
+  window.location.href = "http://localhost:5500/IronGear/Backend/public/WebPage.html";
 }
 // Set admin name in sidebar
 document.getElementById("admin-name").innerText =

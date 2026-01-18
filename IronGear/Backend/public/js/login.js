@@ -52,10 +52,10 @@ document
       /* 🚀 SMART REDIRECT */
       if (data.role && data.role.toLowerCase() === 'admin') {
         // Admin goes to the Choice Gate
-        window.location.href = "http://localhost:5500/Login/Backend/public/admin-dashboard.html"; 
+        window.location.href = "http://localhost:5500/IronGear/Backend/public/admin-dashboard.html"; 
       } else {
         // Regular user goes to the main page
-        window.location.href = "http://localhost:5500/Login/Backend/public/WebPage.html";
+        window.location.href = "http://localhost:5500/IronGear/Backend/public/WebPage.html";
       }
     } catch (error) {
       passwordError.textContent = error.message;

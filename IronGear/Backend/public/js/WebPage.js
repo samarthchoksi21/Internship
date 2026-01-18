@@ -10,7 +10,7 @@ async function verifyUser() {
         });
 
         if (!res.ok) {
-            window.location.href = "http://localhost:5500/Login/Backend/public/login.html";
+            window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
             return;
         }
     } catch (err) {
@@ -74,7 +74,7 @@ async function verifyUser() {
         });
 
         if (!res.ok) {
-            window.location.href = "http://localhost:5500/Login/Backend/public/login.html";
+            window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
             return;
         }
 
@@ -144,7 +144,7 @@ async function handleLogout() {
             currentUser = null;
             cart = [];
             // Redirect to login
-            window.location.href = "http://localhost:5500/Login/Backend/public/login.html";
+            window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
         } else {
             alert("Logout failed. Please try again.");
         }
