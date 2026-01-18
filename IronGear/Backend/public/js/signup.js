@@ -66,7 +66,7 @@ document
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.Message || "Signup failed");
+        throw new Error(data?.message || "Signup failed");
       }
       console.log("Signup route hitted - 2")
       localStorage.setItem("pendingEmail", email);
