@@ -61,12 +61,14 @@ document
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
+      console.log("Signup route hitted")
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.Message || "Signup failed");
       }
+      console.log("Signup route hitted - 2")
       localStorage.setItem("pendingEmail", email);
       window.location.href =
         "/otp.html";
