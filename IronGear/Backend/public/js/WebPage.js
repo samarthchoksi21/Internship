@@ -5,7 +5,7 @@ let currentOrderId = null; // Stores the database Order ID for coupons and payme
 // ================= AUTH GUARD =================
 async function verifyUser() {
     try {
-        const res = await fetch("http://localhost:3000/auth/verify", {
+        const res = await fetch("/auth/verify", {
             credentials: "include"
         });
 
@@ -22,7 +22,7 @@ async function verifyUser() {
 // 1. Fetch Products
 async function loadProducts() {
     try {
-        const response = await fetch('http://localhost:3000/allproduct', {
+        const response = await fetch('/allproduct', {
             credentials: "include"
         });
         const data = await response.json();
@@ -69,7 +69,7 @@ let currentUser = null; // Global variable to store user details
 async function verifyUser() {
     try {
         // Step 1: Check if user is logged in
-        const res = await fetch("http://localhost:3000/auth/verify", {
+        const res = await fetch("/auth/verify", {
             credentials: "include"
         });
 
@@ -79,7 +79,7 @@ async function verifyUser() {
         }
 
         // Step 2: Fetch full details for the profile menu
-        const detailRes = await fetch("http://localhost:3000/me", { credentials: "include" });
+        const detailRes = await fetch("/me", { credentials: "include" });
         const detailData = await detailRes.json();
         
         if (detailRes.ok) {
@@ -138,7 +138,7 @@ async function handleLogout() {
     if (!confirm("Are you sure you want to log out of IRON GEAR?")) return;
 
     try {
-        const res = await fetch("http://localhost:3000/logout", { credentials: "include" });
+        const res = await fetch("/logout", { credentials: "include" });
         if (res.ok) {
             // Clear local states if any
             currentUser = null;
@@ -226,7 +226,7 @@ async function handleCoupon() {
             await createDatabaseOrder();
         }
 
-        const res = await fetch("http://localhost:3000/applycoupon", {
+        const res = await fetch("/applycoupon", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId: currentOrderId, couponCode: code }),
@@ -257,7 +257,7 @@ async function createDatabaseOrder() {
         quantity: 1
     }));
 
-    const res = await fetch("http://localhost:3000/order", {
+    const res = await fetch("/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items }),
@@ -287,7 +287,7 @@ async function initiateCheckout() {
         console.log("Function Mid")
 
         // 2. Get Razorpay Order ID from Backend
-        const payRes = await fetch("http://localhost:3000/payment", {
+        const payRes = await fetch("/payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId: currentOrderId }),
@@ -329,7 +329,7 @@ async function initiateCheckout() {
 // Step 4: Verify Payment
 async function verifyPaymentOnServer(rzpResponse) {
     try {
-        const res = await fetch("http://localhost:3000/verifypayment", {
+        const res = await fetch("/verifypayment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rzpResponse),

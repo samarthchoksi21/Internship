@@ -1,7 +1,7 @@
 // --- 1. SERVER-SIDE SECURITY CHECK ---
 (async function () {
   try {
-    const res = await fetch("http://localhost:3000/auth/verify", {
+    const res = await fetch("/auth/verify", {
       credentials: "include",
     });
     const data = await res.json();
@@ -21,7 +21,7 @@
     console.log(`Access Granted: Welcome ${data.user.username}`);
   } catch (err) {
     console.error("Auth Check Failed:", err);
-    window.location.href = "http://localhost:5500/IronGear/Backend/public/login.html";
+    window.location.href = "http://localhost:3000/IronGear/Backend/public/login.html";
   }
 })();
 
@@ -146,7 +146,7 @@ async function fetchProducts(page = 1) {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/admin/product?page=${page}&limit=10`,
+      `/admin/product?page=${page}&limit=10`,
       { credentials: "include" }
     );
     const data = await res.json();
@@ -232,7 +232,7 @@ async function fetchAllUsers() {
   headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
   try {
-    const res = await fetch("http://localhost:3000/admin/allusers", {
+    const res = await fetch("/admin/allusers", {
       credentials: "include",
     });
     const data = await res.json();
@@ -277,7 +277,7 @@ async function fetchAllUsers() {
 
 async function deleteUser(id, name) {
   if (!confirm(`Permanently delete user ${name}?`)) return;
-  const res = await fetch(`http://localhost:3000/admin/user/${id}`, {
+  const res = await fetch(`/admin/user/${id}`, {
     method: "DELETE",
     credentials: "include",
   });
@@ -316,7 +316,7 @@ function renderUpdatePage(id, name, email) {
 
   document.getElementById("updateForm").onsubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`http://localhost:3000/admin/updateuser/${id}`, {
+    const res = await fetch(`/admin/updateuser/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -332,7 +332,7 @@ function renderUpdatePage(id, name, email) {
 }
 
 async function changeRole(id) {
-  const res = await fetch(`http://localhost:3000/admin/changerole/${id}`, {
+  const res = await fetch(`/admin/changerole/${id}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -356,7 +356,7 @@ async function renderCategoryList() {
     `;
 
   try {
-    const res = await fetch("http://localhost:3000/admin/getAllcategories", {
+    const res = await fetch("/admin/getAllcategories", {
       credentials: "include",
     });
     const data = await res.json();
@@ -399,7 +399,7 @@ async function renderAddCategoryForm() {
   headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
   try {
-    const res = await fetch("http://localhost:3000/admin/getAllcategories", {
+    const res = await fetch("/admin/getAllcategories", {
       credentials: "include",
     });
     const data = await res.json();
@@ -419,7 +419,7 @@ async function renderAddCategoryForm() {
 
     document.getElementById("catForm").onsubmit = async (e) => {
       e.preventDefault();
-      const res = await fetch("http://localhost:3000/admin/createCategory", {
+      const res = await fetch("/admin/createCategory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -443,7 +443,7 @@ async function deleteCategory(id, name) {
     !confirm(`Delete category "${name}"? This may affect items assigned to it.`)
   )
     return;
-  const res = await fetch(`http://localhost:3000/admin/category/${id}`, {
+  const res = await fetch(`/admin/category/${id}`, {
     method: "DELETE",
     credentials: "include",
   });
@@ -468,7 +468,7 @@ function renderSearchPage() {
 }
 
 async function searchU() {
-  const res = await fetch(`http://localhost:3000/admin/user/${sId.value}`, {
+  const res = await fetch(`/admin/user/${sId.value}`, {
     credentials: "include",
   });
   const d = await res.json();
@@ -491,7 +491,7 @@ function renderCreateForm() {
         </div>`;
   document.getElementById("newUF").onsubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:3000/admin/createUser", {
+    const res = await fetch("/admin/createUser", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -586,7 +586,7 @@ async function renderAddProductForm() {
   headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
   try {
-    const catRes = await fetch("http://localhost:3000/admin/getAllcategories", {
+    const catRes = await fetch("/admin/getAllcategories", {
       credentials: "include",
     });
     const catData = await catRes.json();
@@ -641,7 +641,7 @@ async function renderAddProductForm() {
         variants: productVariants,
       };
 
-      const res = await fetch("http://localhost:3000/admin/product", {
+      const res = await fetch("/admin/product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -665,10 +665,10 @@ async function renderEditProduct(rawProductId) {
 
   try {
     const [prodRes, catRes] = await Promise.all([
-      fetch(`http://localhost:3000/admin/product/${productId}`, {
+      fetch(`/admin/product/${productId}`, {
         credentials: "include",
       }),
-      fetch("http://localhost:3000/admin/getAllcategories", {
+      fetch("/admin/getAllcategories", {
         credentials: "include",
       }),
     ]);
@@ -729,7 +729,7 @@ async function renderEditProduct(rawProductId) {
     document.getElementById("editProductForm").onsubmit = async (e) => {
       e.preventDefault();
       const res = await fetch(
-        `http://localhost:3000/admin/product/${productId}`,
+        `/admin/product/${productId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -764,7 +764,7 @@ async function deleteProduct(productId, productName) {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/admin/product/${productId}`,
+      `/admin/product/${productId}`,
       {
         method: "DELETE",
         credentials: "include",
@@ -797,7 +797,7 @@ function logout() {
   // Set up the click handler for the confirm button
   confirmBtn.onclick = async () => {
     try {
-      const res = await fetch("http://localhost:3000/logout", {
+      const res = await fetch("/logout", {
         method: "GET",
         credentials: "include",
       });
@@ -831,7 +831,7 @@ async function renderStockWatch() {
 
   try {
     // We reuse your existing Product List API
-    const res = await fetch("http://localhost:3000/admin/product?limit=100", {
+    const res = await fetch("/admin/product?limit=100", {
       credentials: "include",
     });
     const data = await res.json();
@@ -992,7 +992,7 @@ function renderAddCouponForm() {
         };
 
         try {
-            const res = await fetch('http://localhost:3000/admin/coupons', {
+            const res = await fetch('/admin/coupons', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -1020,7 +1020,7 @@ async function renderCouponManager() {
 
     try {
         // Fetching from your specific route
-        const res = await fetch('http://localhost:3000/admin/getAllcoupons?limit=20', { credentials: 'include' });
+        const res = await fetch('/admin/getAllcoupons?limit=20', { credentials: 'include' });
         const data = await res.json();
         
         // Note: Your controller returns { coupons: [...] }
@@ -1107,7 +1107,7 @@ async function renderOrderManager() {
     workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
     try {
-        const res = await fetch('http://localhost:3000/admin/getAllorders?limit=20', { credentials: 'include' });
+        const res = await fetch('/admin/getAllorders?limit=20', { credentials: 'include' });
         const data = await res.json();
         const orders = data.orders || [];
 
@@ -1188,7 +1188,7 @@ async function renderQuickSalesReport() {
 
     try {
         // Fetch last 50 orders to get a good sample size
-        const res = await fetch('http://localhost:3000/admin/getAllorders?limit=50', { credentials: 'include' });
+        const res = await fetch('/admin/getAllorders?limit=50', { credentials: 'include' });
         const data = await res.json();
         const orders = data.orders || [];
 

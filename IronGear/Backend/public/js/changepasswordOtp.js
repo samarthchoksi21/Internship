@@ -48,7 +48,7 @@ form.addEventListener("submit", async (e) => {
   loader.classList.remove("hidden");
 
   try {
-    const res = await fetch("http://localhost:3000/changepasswordotp", {
+    const res = await fetch("/changepasswordotp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -86,7 +86,7 @@ resendBtn.addEventListener("click", async (e) => {
     return;
   }
   try {
-    const res = await fetch("http://localhost:3000/re-send", {
+    const res = await fetch("/re-send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),

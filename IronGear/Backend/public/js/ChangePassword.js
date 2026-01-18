@@ -23,7 +23,7 @@ document.getElementById("ForgotPasswordPage").addEventListener("submit", async (
     button.disabled = true;
     button.textContent = "Updating...";
 
-    const response = await fetch("http://localhost:3000/change", {
+    const response = await fetch("/change", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

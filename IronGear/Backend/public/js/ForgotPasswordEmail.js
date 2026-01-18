@@ -18,7 +18,7 @@ document.getElementById("ForgotPasswordPage").addEventListener("submit", async (
     button.disabled = true;
     button.textContent = "Sending OTP...";
 
-    const response = await fetch("http://localhost:3000/forgotpasswordemail", {
+    const response = await fetch("/forgotpasswordemail", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

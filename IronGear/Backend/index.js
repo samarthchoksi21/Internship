@@ -2,10 +2,7 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const app = express()
-app.use((req, res, next) => {
-  console.log("REQ:", req.method, req.url);
-  next();
-});
+require('dotenv').config()
 const {VerifyUser} = require('./service/auth')
 const AdminRoute = require('./Router/admin')
 const UserRoute = require('./Router/user')
@@ -23,6 +20,6 @@ require('./Models/products')
 app.use('/admin',VerifyUser,AdminRoute)
 app.use('/',UserRoute)
 MongoConnection()
-app.listen(3000,()=>{
+app.listen(process.env.PORT,()=>{
     console.log("SERVER STARTED..!!")
 })

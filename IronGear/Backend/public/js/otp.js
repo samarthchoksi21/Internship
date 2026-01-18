@@ -54,7 +54,7 @@ form.addEventListener("submit", async (e) => {
   loader.classList.remove("hidden");
 
   try {
-    const res = await fetch("http://localhost:3000/otp", {
+    const res = await fetch("/otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -94,7 +94,7 @@ resendBtn.addEventListener("click", async (e) => {
   }
 
   try {
-    const res = await fetch("http://localhost:3000/re-send", {
+    const res = await fetch("/re-send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
