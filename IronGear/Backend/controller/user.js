@@ -321,7 +321,6 @@ async function GetAllProductsPublic(req, res) {
       PRODUCT.countDocuments(filter),
     ]);
 
-    // Remove sensitive variant fields
     const sanitizedProducts = products.map((product) => ({
       ...product,
       variants: product.variants
@@ -330,7 +329,7 @@ async function GetAllProductsPublic(req, res) {
           label: v.label,
           price: v.price,
           imageUrl: v.imageUrl,
-          inStock: v.stock > 0, // boolean only
+          inStock: v.stock > 0, 
         })),
     }));
 
@@ -484,7 +483,6 @@ async function applyCoupon(req, res) {
       });
     }
 
-    // --- Discount calculation ---
     let discount = 0;
 
     if (coupon.type === "percentage") {

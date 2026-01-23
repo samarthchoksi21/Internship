@@ -578,6 +578,7 @@ async function getAllCoupons(req, res) {
     if (expired === "false") {
       filter.expiryDate = { $gte: new Date() };
     }
+    
 
     const [coupons, totalCoupons] = await Promise.all([
       COUPON.find(filter)
@@ -592,7 +593,7 @@ async function getAllCoupons(req, res) {
       COUPON.countDocuments(filter)
     ]);
 
-    // transform usedBy → usedCount
+    
     const formattedCoupons = coupons.map(coupon => ({
       ...coupon,
       usedCount: coupon.usedBy.length,
