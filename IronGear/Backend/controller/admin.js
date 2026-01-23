@@ -231,16 +231,14 @@ async function CreateProduct(req, res) {
   try {
     const { name, description, categoryId, variants, images } = req.body;
 
-    if (
-      !name ||
-      !categoryId ||
-      !Array.isArray(variants) ||
-      variants.length === 0
-    ) {
+    // Basic validation
+    if (!name || !categoryId || !Array.isArray(variants) || variants.length === 0) {
       return res.status(400).json({
         message: "name, categoryId and at least one variant are required",
       });
     }
+
+    // Check category
     const category = await CATEGORY.findById(categoryId);
     if (!category || !category.isActive) {
       return res.status(400).json({
@@ -252,27 +250,38 @@ async function CreateProduct(req, res) {
     let minPrice = Infinity;
     let maxPrice = 0;
 
-    for (const v of variants) {
+    // Validate & normalize variants
+    const normalizedVariants = variants.map((v) => {
       if (
         !v.sku ||
         !v.label ||
         typeof v.price !== "number" ||
-        typeof v.stock !== "number"
+        typeof v.stock !== "number" ||
+        !v.imageUrl
       ) {
-        return res.status(400).json({
-          message: "Each variant must have sku, label, valid price and stock",
-        });
+        console.log(variants)
+        throw new Error("Each variant must have sku, label, price, stock and imageUrl");
       }
+
       if (skuSet.has(v.sku)) {
-        return res.status(400).json({
-          message: `Duplicate SKU found: ${v.sku}`,
-        });
+        throw new Error(`Duplicate SKU found: ${v.sku}`);
       }
+
       skuSet.add(v.sku);
       minPrice = Math.min(minPrice, v.price);
       maxPrice = Math.max(maxPrice, v.price);
-    }
 
+      return {
+        sku: v.sku.trim(),
+        label: v.label,
+        price: v.price,
+        stock: v.stock,
+        imageUrl: v.imageUrl,
+        isActive: v.isActive ?? true,
+      };
+    });
+
+    // Slug generation
     const slug = name
       .toLowerCase()
       .trim()
@@ -284,15 +293,17 @@ async function CreateProduct(req, res) {
         message: "Product with similar name already exists",
       });
     }
+
+    // Create product
     const product = await PRODUCT.create({
-      name: name,
-      slug: slug,
-      description: description,
-      images: images,
+      name,
+      slug,
+      description,
       categoryRef: categoryId,
-      variants: variants,
-      minPrice: minPrice,
-      maxPrice: maxPrice,
+      images: Array.isArray(images) ? images : [],
+      variants: normalizedVariants,
+      minPrice,
+      maxPrice,
       createdBy: req.user._id,
     });
 
@@ -301,12 +312,14 @@ async function CreateProduct(req, res) {
       product,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Internal server error",
+    console.error(err.message);
+
+    return res.status(400).json({
+      message: err.message || "Internal server error",
     });
   }
 }
+
 
 async function GetAllProducts(req, res) {
   try {

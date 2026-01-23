@@ -21,7 +21,8 @@
     console.log(`Access Granted: Welcome ${data.user.username}`);
   } catch (err) {
     console.error("Auth Check Failed:", err);
-    window.location.href = "http://localhost:3000/IronGear/Backend/public/login.html";
+    window.location.href =
+      "http://localhost:3000/IronGear/Backend/public/login.html";
   }
 })();
 
@@ -41,12 +42,13 @@ function setActiveNav(id) {
 
 // --- 2. MAIN DASHBOARD (Unified Hub) ---
 function renderHome() {
-    setActiveNav("nav-home");
-    viewTitle.innerText = "Command Center";
-    viewSubtitle.innerText = "Unified control for Iron-Gear users, shop inventory, and products.";
-    headerActions.innerHTML = "";
+  setActiveNav("nav-home");
+  viewTitle.innerText = "Command Center";
+  viewSubtitle.innerText =
+    "Unified control for Iron-Gear users, shop inventory, and products.";
+  headerActions.innerHTML = "";
 
-    workspace.innerHTML = `
+  workspace.innerHTML = `
         <div class="animate-in">
             <section class="dashboard-section">
                 <div class="section-header"><i class="fa-solid fa-user-shield"></i><h3>User Administration</h3></div>
@@ -145,10 +147,9 @@ async function fetchProducts(page = 1) {
   headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
   try {
-    const res = await fetch(
-      `/admin/product?page=${page}&limit=10`,
-      { credentials: "include" }
-    );
+    const res = await fetch(`/admin/product?page=${page}&limit=10`, {
+      credentials: "include",
+    });
     const data = await res.json();
 
     if (res.ok) {
@@ -169,8 +170,8 @@ async function fetchProducts(page = 1) {
                                 (p) => `
                                 <tr>
                                     <td><strong>${p.name}</strong><br><small>${
-                                  p.slug
-                                }</small></td>
+                                      p.slug
+                                    }</small></td>
                                     <td><span class="role-badge" style="background:#e0f2fe; color:#0369a1;">${
                                       p.categoryRef?.name || "N/A"
                                     }</span></td>
@@ -180,7 +181,7 @@ async function fetchProducts(page = 1) {
                                               .map(
                                                 (v) => `
                                                 <small>• ${v.label}: <strong>$${v.price}</strong> (${v.stock} pcs)</small>
-                                            `
+                                            `,
                                               )
                                               .join("")}
                                         </div>
@@ -192,10 +193,10 @@ async function fetchProducts(page = 1) {
                                         <button class="btn-delete" onclick="deleteProduct('${
                                           p._id
                                         }', '${
-                                  p.name
-                                }')"><i class="fa-solid fa-trash"></i></button>
+                                          p.name
+                                        }')"><i class="fa-solid fa-trash"></i></button>
                                     </td>
-                                </tr>`
+                                </tr>`,
                               )
                               .join("")}
                         </tbody>
@@ -204,7 +205,7 @@ async function fetchProducts(page = 1) {
                 <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
                     ${Array.from(
                       { length: data.pagination.totalPages },
-                      (_, i) => i + 1
+                      (_, i) => i + 1,
                     )
                       .map(
                         (pageNum) => `
@@ -212,7 +213,7 @@ async function fetchProducts(page = 1) {
                           pageNum === page ? "var(--primary)" : "var(--navy)"
                         }" 
                                 onclick="fetchProducts(${pageNum})">${pageNum}</button>
-                    `
+                    `,
                       )
                       .join("")}
                 </div>
@@ -255,15 +256,15 @@ async function fetchAllUsers() {
                                         <button class="btn-edit" onclick="renderUpdatePage('${
                                           u._id
                                         }', '${u.username}', '${
-                                  u.email
-                                }')"><i class="fa-solid fa-pen"></i></button>
+                                          u.email
+                                        }')"><i class="fa-solid fa-pen"></i></button>
                                         <button class="btn-delete" onclick="deleteUser('${
                                           u._id
                                         }', '${
-                                  u.username
-                                }')"><i class="fa-solid fa-trash"></i></button>
+                                          u.username
+                                        }')"><i class="fa-solid fa-trash"></i></button>
                                     </td>
-                                </tr>`
+                                </tr>`,
                               )
                               .join("")}
                         </tbody>
@@ -371,8 +372,8 @@ async function renderCategoryList() {
                             <td><strong>${
                               c.name
                             }</strong><br><small style="color:var(--text-muted)">${
-                          c.slug
-                        }</small></td>
+                              c.slug
+                            }</small></td>
                             <td><span class="role-badge" style="background:#f1f5f9; color:#475569;">${
                               c.parentRef?.name || "Main"
                             }</span></td>
@@ -383,7 +384,7 @@ async function renderCategoryList() {
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </td>
-                        </tr>`
+                        </tr>`,
                       )
                       .join("")}
                     </tbody>
@@ -532,7 +533,7 @@ function addVariantToForm() {
     price,
     stock,
     sku,
-    image: vImg, // Your controller/schema expects this
+    imageUrl: vImg, // Your controller/schema expects this
   });
 
   updateVariantListUI();
@@ -558,14 +559,14 @@ function updateVariantListUI() {
         <div class="variant-item animate-in">
             <div class="variant-info">
                 <img src="${
-                  v.image || "https://via.placeholder.com/50"
+                  v.imageUrl || "https://via.placeholder.com/50"
                 }" class="variant-img-preview" onerror="this.src='https://via.placeholder.com/50'">
                 <div class="variant-details">
                     <h4>${
                       v.label
                     } <span style="color:#94a3b8; font-weight:400;">(${
-        v.sku
-      })</span></h4>
+                      v.sku
+                    })</span></h4>
                     <p><strong>$${v.price}</strong> • Stock: ${v.stock} pcs</p>
                 </div>
             </div>
@@ -573,7 +574,7 @@ function updateVariantListUI() {
                 <i class="fa-solid fa-trash-can"></i>
             </button>
         </div>
-    `
+    `,
     )
     .join("");
 }
@@ -678,14 +679,20 @@ async function renderEditProduct(rawProductId) {
     const p = prodData.product;
 
     // Map existing variants into our dynamic builder list
-    productVariants = p.variants.map((v) => ({ ...v }));
+    productVariants = p.variants.map((v) => ({
+      label: v.label,
+      price: v.price,
+      stock: v.stock,
+      sku: v.sku,
+      imageUrl: v.imageUrl,
+    }));
 
     const catOptions = catData.categories
       .map(
         (c) =>
           `<option value="${c._id}" ${
             c._id === (p.categoryRef?._id || p.categoryRef) ? "selected" : ""
-          }>${c.name}</option>`
+          }>${c.name}</option>`,
       )
       .join("");
 
@@ -728,24 +735,21 @@ async function renderEditProduct(rawProductId) {
 
     document.getElementById("editProductForm").onsubmit = async (e) => {
       e.preventDefault();
-      const res = await fetch(
-        `/admin/product/${productId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            name: pN.value,
-            description: pD.value,
-            categoryId: pC.value,
-            images: pI.value
-              .split(",")
-              .map((s) => s.trim())
-              .filter((s) => s),
-            variants: productVariants,
-          }),
-        }
-      );
+      const res = await fetch(`/admin/product/${productId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: pN.value,
+          description: pD.value,
+          categoryId: pC.value,
+          images: pI.value
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s),
+          variants: productVariants,
+        }),
+      });
       const d = await res.json();
       alert(d.message);
       if (res.ok) fetchProducts();
@@ -757,19 +761,16 @@ async function renderEditProduct(rawProductId) {
 async function deleteProduct(productId, productName) {
   // 1. Confirm with the user
   const confirmDelete = confirm(
-    `Are you sure you want to delete "${productName}"?\nThis action cannot be undone.`
+    `Are you sure you want to delete "${productName}"?\nThis action cannot be undone.`,
   );
 
   if (!confirmDelete) return;
 
   try {
-    const res = await fetch(
-      `/admin/product/${productId}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      }
-    );
+    const res = await fetch(`/admin/product/${productId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
     const data = await res.json();
 
@@ -847,7 +848,7 @@ async function renderStockWatch() {
             variantLabel: variant.label,
             sku: variant.sku,
             stock: variant.stock,
-            image: variant.image,
+            image: variant.imageUrl,
           });
         }
       });
@@ -909,8 +910,8 @@ async function renderStockWatch() {
                                     <span class="role-badge" style="background:${
                                       item.stock === 0 ? "#ffe4e6" : "#fef3c7"
                                     }; color:${
-                              item.stock === 0 ? "#e11d48" : "#b45309"
-                            }">
+                                      item.stock === 0 ? "#e11d48" : "#b45309"
+                                    }">
                                         ${
                                           item.stock === 0
                                             ? "Out of Stock"
@@ -926,7 +927,7 @@ async function renderStockWatch() {
                                     </button>
                                 </td>
                             </tr>
-                        `
+                        `,
                           )
                           .join("")}
                     </tbody>
@@ -938,11 +939,11 @@ async function renderStockWatch() {
   }
 }
 function renderAddCouponForm() {
-    viewTitle.innerText = "Create Promotion";
-    viewSubtitle.innerText = "Generate new discount codes for the store.";
-    headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
+  viewTitle.innerText = "Create Promotion";
+  viewSubtitle.innerText = "Generate new discount codes for the store.";
+  headerActions.innerHTML = `<button class="btn-back" onclick="renderHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>`;
 
-    workspace.innerHTML = `
+  workspace.innerHTML = `
         <div class="form-container animate-in" style="max-width: 700px; margin: auto;">
             <form id="couponForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -979,65 +980,68 @@ function renderAddCouponForm() {
         </div>
     `;
 
-    document.getElementById('couponForm').onsubmit = async (e) => {
-        e.preventDefault();
-        
-        const payload = {
-            code: document.getElementById('cpCode').value,
-            type: document.getElementById('cpType').value,
-            value: parseFloat(document.getElementById('cpValue').value),
-            expiryDate: document.getElementById('cpExpiry').value,
-            minOrderValue: parseFloat(document.getElementById('cpMin').value),
-            usageLimit: parseInt(document.getElementById('cpLimit').value)
-        };
+  document.getElementById("couponForm").onsubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            const res = await fetch('/admin/coupons', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            alert(data.message);
-            if (res.ok) renderHome();
-        } catch (err) {
-            alert("Error connecting to Coupon API");
-        }
+    const payload = {
+      code: document.getElementById("cpCode").value,
+      type: document.getElementById("cpType").value,
+      value: parseFloat(document.getElementById("cpValue").value),
+      expiryDate: document.getElementById("cpExpiry").value,
+      minOrderValue: parseFloat(document.getElementById("cpMin").value),
+      usageLimit: parseInt(document.getElementById("cpLimit").value),
     };
+
+    try {
+      const res = await fetch("/admin/coupons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) renderHome();
+    } catch (err) {
+      alert("Error connecting to Coupon API");
+    }
+  };
 }
 async function renderCouponManager() {
-    setActiveNav('nav-coupons');
-    viewTitle.innerText = "Coupon Directory";
-    viewSubtitle.innerText = "View and manage active discount codes and promotions.";
-    headerActions.innerHTML = `
+  setActiveNav("nav-coupons");
+  viewTitle.innerText = "Coupon Directory";
+  viewSubtitle.innerText =
+    "View and manage active discount codes and promotions.";
+  headerActions.innerHTML = `
         <button class="btn-primary-action" onclick="renderAddCouponForm()">
             <i class="fa-solid fa-plus"></i> New Coupon
         </button>`;
-    
-    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
-    try {
-        // Fetching from your specific route
-        const res = await fetch('/admin/getAllcoupons?limit=20', { credentials: 'include' });
-        const data = await res.json();
-        
-        // Note: Your controller returns { coupons: [...] }
-        const coupons = data.coupons || [];
+  workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
-        if (coupons.length === 0) {
-            workspace.innerHTML = `
+  try {
+    // Fetching from your specific route
+    const res = await fetch("/admin/getAllcoupons?limit=20", {
+      credentials: "include",
+    });
+    const data = await res.json();
+
+    // Note: Your controller returns { coupons: [...] }
+    const coupons = data.coupons || [];
+
+    if (coupons.length === 0) {
+      workspace.innerHTML = `
                 <div class="form-container animate-in" style="text-align:center; padding:60px;">
                     <div style="font-size: 50px; color: #64748b; margin-bottom: 20px;"><i class="fa-solid fa-ticket"></i></div>
                     <h3>No Coupons Found</h3>
                     <p>Start a marketing campaign by creating your first code.</p>
                     <button class="btn-primary-action" onclick="renderAddCouponForm()" style="margin-top:20px;">Create First Coupon</button>
                 </div>`;
-            return;
-        }
+      return;
+    }
 
-        workspace.innerHTML = `
+    workspace.innerHTML = `
             <div class="table-wrapper animate-in">
                 <table class="admin-table">
                     <thead>
@@ -1052,30 +1056,36 @@ async function renderCouponManager() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${coupons.map(cp => {
-                            const isExpired = new Date(cp.expiryDate) < new Date();
-                            const statusColor = isExpired ? '#e11d48' : (cp.isActive ? '#10b981' : '#64748b');
-                            
+                        ${coupons
+                          .map((cp) => {
+                            const isExpired =
+                              new Date(cp.expiryDate) < new Date();
+                            const statusColor = isExpired
+                              ? "#e11d48"
+                              : cp.isActive
+                                ? "#10b981"
+                                : "#64748b";
+
                             return `
                                 <tr>
                                     <td><code style="font-size:1.1rem; color:#6366f1; font-weight:bold;">${cp.code}</code></td>
                                     <td><span class="role-badge" style="background:#f1f5f9; color:#475569;">${cp.type.toUpperCase()}</span></td>
-                                    <td><strong>${cp.type === 'percentage' ? cp.value + '%' : '$' + cp.value}</strong></td>
+                                    <td><strong>${cp.type === "percentage" ? cp.value + "%" : "$" + cp.value}</strong></td>
                                     <td>
                                         <div style="font-size:0.85rem;">
                                             <strong>${cp.usedCount}</strong> Redeemed<br>
-                                            <small style="color:#64748b;">Limit: ${cp.usageLimit === 0 ? '∞' : cp.usageLimit}</small>
+                                            <small style="color:#64748b;">Limit: ${cp.usageLimit === 0 ? "∞" : cp.usageLimit}</small>
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size:0.85rem; color:${isExpired ? '#e11d48' : 'inherit'}">
+                                        <div style="font-size:0.85rem; color:${isExpired ? "#e11d48" : "inherit"}">
                                             ${new Date(cp.expiryDate).toLocaleDateString()}<br>
-                                            <small>${isExpired ? 'EXPIRED' : 'REMAINING'}</small>
+                                            <small>${isExpired ? "EXPIRED" : "REMAINING"}</small>
                                         </div>
                                     </td>
                                     <td>
                                         <span class="role-badge" style="background:${statusColor}20; color:${statusColor}; border: 1px solid ${statusColor}40;">
-                                            ${cp.isActive ? 'Public' : 'Hidden'}
+                                            ${cp.isActive ? "Public" : "Hidden"}
                                         </span>
                                     </td>
                                     <td>
@@ -1090,38 +1100,42 @@ async function renderCouponManager() {
                                     </td>
                                 </tr>
                             `;
-                        }).join('')}
+                          })
+                          .join("")}
                     </tbody>
                 </table>
             </div>`;
-    } catch (e) {
-        workspace.innerHTML = `<div class="form-container"><p>Error loading coupons. Check console.</p></div>`;
-    }
+  } catch (e) {
+    workspace.innerHTML = `<div class="form-container"><p>Error loading coupons. Check console.</p></div>`;
+  }
 }
 async function renderOrderManager() {
-    setActiveNav('nav-orders');
-    viewTitle.innerText = "Order Management";
-    viewSubtitle.innerText = "Track customer purchases, fulfillment status, and revenue.";
-    headerActions.innerHTML = `<button class="btn-primary-action" onclick="renderHome()"><i class="fa-solid fa-house"></i> Dashboard</button>`;
-    
-    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+  setActiveNav("nav-orders");
+  viewTitle.innerText = "Order Management";
+  viewSubtitle.innerText =
+    "Track customer purchases, fulfillment status, and revenue.";
+  headerActions.innerHTML = `<button class="btn-primary-action" onclick="renderHome()"><i class="fa-solid fa-house"></i> Dashboard</button>`;
 
-    try {
-        const res = await fetch('/admin/getAllorders?limit=20', { credentials: 'include' });
-        const data = await res.json();
-        const orders = data.orders || [];
+  workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
-        if (orders.length === 0) {
-            workspace.innerHTML = `
+  try {
+    const res = await fetch("/admin/getAllorders?limit=20", {
+      credentials: "include",
+    });
+    const data = await res.json();
+    const orders = data.orders || [];
+
+    if (orders.length === 0) {
+      workspace.innerHTML = `
                 <div class="form-container animate-in" style="text-align:center; padding:60px;">
                     <i class="fa-solid fa-box-open" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
                     <h3>No Orders Yet</h3>
                     <p>When customers buy products, they will appear here.</p>
                 </div>`;
-            return;
-        }
+      return;
+    }
 
-        workspace.innerHTML = `
+    workspace.innerHTML = `
             <div class="table-wrapper animate-in">
                 <table class="admin-table">
                     <thead>
@@ -1136,22 +1150,25 @@ async function renderOrderManager() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${orders.map(order => {
+                        ${orders
+                          .map((order) => {
                             // Status Badge Colors
                             const statusColors = {
-                                'pending': '#f59e0b',
-                                'shipped': '#3b82f6',
-                                'delivered': '#10b981',
-                                'cancelled': '#e11d48'
+                              pending: "#f59e0b",
+                              shipped: "#3b82f6",
+                              delivered: "#10b981",
+                              cancelled: "#e11d48",
                             };
-                            const color = statusColors[order.status.toLowerCase()] || '#64748b';
+                            const color =
+                              statusColors[order.status.toLowerCase()] ||
+                              "#64748b";
 
                             return `
                                 <tr>
                                     <td><small>#${order._id.slice(-8).toUpperCase()}</small></td>
                                     <td>
-                                        <div style="font-weight:600;">${order.user?.username || 'Guest'}</div>
-                                        <small style="color:#64748b;">${order.user?.email || 'N/A'}</small>
+                                        <div style="font-weight:600;">${order.user?.username || "Guest"}</div>
+                                        <small style="color:#64748b;">${order.user?.email || "N/A"}</small>
                                     </td>
                                     <td><strong>$${order.finalAmount || order.totalPrice}</strong></td>
                                     <td>
@@ -1160,8 +1177,8 @@ async function renderOrderManager() {
                                         </span>
                                     </td>
                                     <td>
-                                        <span style="color:${order.paymentStatus === 'paid' ? '#10b981' : '#e11d48'}; font-size:0.85rem; font-weight:600;">
-                                            <i class="fa-solid ${order.paymentStatus === 'paid' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+                                        <span style="color:${order.paymentStatus === "paid" ? "#10b981" : "#e11d48"}; font-size:0.85rem; font-weight:600;">
+                                            <i class="fa-solid ${order.paymentStatus === "paid" ? "fa-circle-check" : "fa-circle-xmark"}"></i>
                                             ${order.paymentStatus.toUpperCase()}
                                         </span>
                                     </td>
@@ -1173,32 +1190,39 @@ async function renderOrderManager() {
                                     </td>
                                 </tr>
                             `;
-                        }).join('')}
+                          })
+                          .join("")}
                     </tbody>
                 </table>
             </div>`;
-    } catch (e) {
-        workspace.innerHTML = `<div class="form-container"><p>Error fetching orders. Check server connection.</p></div>`;
-    }
+  } catch (e) {
+    workspace.innerHTML = `<div class="form-container"><p>Error fetching orders. Check server connection.</p></div>`;
+  }
 }
 async function renderQuickSalesReport() {
-    viewTitle.innerText = "Sales Analytics (Live)";
-    viewSubtitle.innerText = "Calculated from recent order data.";
-    workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
+  viewTitle.innerText = "Sales Analytics (Live)";
+  viewSubtitle.innerText = "Calculated from recent order data.";
+  workspace.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>`;
 
-    try {
-        // Fetch last 50 orders to get a good sample size
-        const res = await fetch('/admin/getAllorders?limit=50', { credentials: 'include' });
-        const data = await res.json();
-        const orders = data.orders || [];
+  try {
+    // Fetch last 50 orders to get a good sample size
+    const res = await fetch("/admin/getAllorders?limit=50", {
+      credentials: "include",
+    });
+    const data = await res.json();
+    const orders = data.orders || [];
 
-        // Calculation Logic
-        const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-        const paidOrders = orders.filter(o => o.paymentStatus === 'paid').length;
-        const pendingOrders = orders.filter(o => o.status === 'pending').length;
-        const avgOrderValue = orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0;
+    // Calculation Logic
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + (order.totalAmount || 0),
+      0,
+    );
+    const paidOrders = orders.filter((o) => o.paymentStatus === "paid").length;
+    const pendingOrders = orders.filter((o) => o.status === "pending").length;
+    const avgOrderValue =
+      orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0;
 
-        workspace.innerHTML = `
+    workspace.innerHTML = `
             <div class="animate-in">
                 <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
                     <div class="stat-card" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center;">
@@ -1221,9 +1245,9 @@ async function renderQuickSalesReport() {
                     </div>
             </div>
         `;
-    } catch (e) {
-        workspace.innerHTML = `<p>Error generating report.</p>`;
-    }
+  } catch (e) {
+    workspace.innerHTML = `<p>Error generating report.</p>`;
+  }
 }
 
 function goToStore() {
