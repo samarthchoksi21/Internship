@@ -278,13 +278,12 @@ async function initiateCheckout() {
     try {
         btn.disabled = true;
         btn.innerText = "Processing...";
-        console.log("Function started")
 
         // 1. Ensure Order is created in DB
         if (!currentOrderId) {
             await createDatabaseOrder();
         }
-        console.log("Function Mid")
+        
 
         // 2. Get Razorpay Order ID from Backend
         const payRes = await fetch("/payment", {
@@ -293,7 +292,7 @@ async function initiateCheckout() {
             body: JSON.stringify({ orderId: currentOrderId }),
             credentials: "include"
         });
-        console.log("Function Mid 2")
+        
 
         const payData = await payRes.json();
         if (!payRes.ok) throw new Error(payData.message);
