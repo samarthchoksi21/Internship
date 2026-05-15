@@ -9,8 +9,6 @@ async function sendOtp(to, otp, text) {
       subject: "EMAIL VERIFICATION OTP",
       text: text || `Your OTP is ${otp}. Do not share this code.`,
     });
-
-    console.log("OTP email sent via Resend");
   } catch (err) {
     console.error("OTP email failed via Resend:", err.message);
   }
